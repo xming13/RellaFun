@@ -1,0 +1,266 @@
+<!doctype html>
+<html>
+	<head>
+		<title>R ella Fun (three.js)</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+				
+		<script src="js/threejs/Three.min.js"></script>
+		<script src="js/threejs/Detector.js"></script>
+		<!-- https://github.com/mrdoob/stats.js -->
+		<script src="js/threejs/Stats.js"></script>
+		<script src="js/threejs/OrbitControls.js"></script>
+		<script src="js/threex/THREEx.KeyboardState.js"></script>
+		<script src="js/threex/THREEx.screenshot.js"></script>
+		<script src="js/threex/THREEx.FullScreen.js"></script>
+		<script src="js/threex/THREEx.WindowResize.js"></script>
+		<script src="js/threex/threex.dragpancontrols.js"></script>
+
+		<!-- jQuery code to display an information button and box when clicked. -->
+		<script src="js/jquery-1.9.1.js"></script>
+		<script src="js/jquery-ui.js"></script>
+		<script src="js/info.js"></script>
+		
+		<link  href="css/main.css" rel="stylesheet"/>
+		<link rel=stylesheet href="css/jquery-ui.css" />
+		<link rel=stylesheet href="css/info.css"/>
+	</head>
+<body>
+	<!-- three.js container -->
+    <div id="container"></div>
+	<!-- info on screen display -->
+	<div id="infoButton"></div>
+	<div id="infoBox" title="Rella Fun">
+		Developed using <a href="https://github.com/mrdoob/three.js/" target="_blank">three.js</a>
+		<div class="bottom" id="inlineDoc" >
+			- <i>p</i> for screenshot
+		</div> 
+	</div> 
+
+	<script type="text/javascript">
+		var stats, scene, renderer;
+		var camera, cameraControls;
+		var keyboard = new THREEx.KeyboardState();
+		var group;
+		var rellaBoxSize = 20;
+		var rellaImage;
+		var rotateMode = false;
+
+		if( !init() )	animate();
+
+		// init the scene
+		function init(){
+
+			if( Detector.webgl ){
+				renderer = new THREE.WebGLRenderer({
+					antialias		: true,	// to get smoother output
+					preserveDrawingBuffer	: true	// to allow screenshot
+				});
+				renderer.setClearColor( 0xBBBBBB, 1 );
+			// uncomment if webgl is required
+			//}else{
+			//	Detector.addGetWebGLMessage();
+			//	return true;
+			}else{
+				renderer	= new THREE.CanvasRenderer();
+			}
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.getElementById('container').appendChild(renderer.domElement);
+
+			// add Stats.js - https://github.com/mrdoob/stats.js
+			stats = new Stats();
+			stats.domElement.style.position	= 'absolute';
+			stats.domElement.style.bottom	= '0px';
+			document.body.appendChild( stats.domElement );
+
+			// create a scene
+			scene = new THREE.Scene();
+
+			// put a camera in the scene
+			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000 );
+			camera.up = new THREE.Vector3(0,1,0);
+			camera.position.set(0, 0, 150);
+			camera.lookAt(scene.position);
+
+			scene.add(camera);
+
+			// create a camera contol
+			cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
+
+			// transparently support window resize
+			THREEx.WindowResize.bind(renderer, camera);
+			// allow 'p' to make screenshot
+			THREEx.Screenshot.bindKey(renderer);
+			// allow 'f' to go fullscreen where this feature is supported
+			if( THREEx.FullScreen.available() ){
+				THREEx.FullScreen.bindKey();		
+				document.getElementById('inlineDoc').innerHTML	+= "<br/> - <i>f</i> for fullscreen";
+			}
+
+			rellaImage = [ 
+				'images/checkerboard.jpg', 
+				'images/icon-info.png', 
+				'images/icon-close-16.png', 
+				'images/disc.png',
+				'images/crate.png',    
+				'images/cloud.png',    
+				'images/lava.png',
+				'images/bg.png',
+				'images/moon.png', 
+				'images/grey-moon.png', 
+				'images/earth.jpg'    
+			];
+
+			group = new THREE.Object3D();
+
+			var rellaImageLength = rellaImage.length;			
+			var numRows = Math.floor(Math.sqrt(rellaImageLength));
+			var startX = -1 * numRows / 2 * rellaBoxSize;
+			var startZ = 0;
+			var row, column;
+
+			for (var i = 0; i < rellaImageLength; i++) {
+				row = Math.floor(i / numRows);
+				column = i % numRows;
+				addRellaWithImage( rellaImage[i], startX + row * rellaBoxSize, startZ + column * rellaBoxSize );
+			}
+			addRellaRainbow( startX + Math.floor(rellaImageLength / numRows) * rellaBoxSize, 
+				startZ + rellaImageLength % numRows * rellaBoxSize);
+
+			scene.add( group );
+		}
+
+		function addRellaRainbow( x, z ) {
+			var halfSphereGeometry = new THREE.SphereGeometry(10, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2.7);
+			var halfSphereMaterial = new THREE.MeshNormalMaterial({ side : THREE.DoubleSide });
+			var halfSphereMesh 	   = new THREE.Mesh( halfSphereGeometry, halfSphereMaterial );
+			halfSphereMesh.position.set(x, 0, z);
+			group.add( halfSphereMesh );
+
+			addRellaHandle(x, z);
+		}
+		function addRellaWithImage( imgPath, x, z ) {
+			var texture = new THREE.ImageUtils.loadTexture( imgPath );
+			var material = new THREE.MeshBasicMaterial({ map: texture, side : THREE.DoubleSide  });
+			var geometry = new THREE.SphereGeometry(10, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2.7);
+			var mesh = new THREE.Mesh( geometry, material );
+			mesh.position.set(x, 0, z);
+			group.add(mesh);
+
+			addRellaHandle(x, z);
+		}
+		function addRellaHandle(x, z) {
+			var handleL = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 13.5, 8, 1, false), 
+				new THREE.MeshBasicMaterial({color: 0x000000, opacity: 1}));
+      		handleL.overdraw = true;
+      		handleL.position.set(x, 4, z);
+      		group.add(handleL);
+
+			var handleUBezier =  new THREE.CubicBezierCurve3( 
+				new THREE.Vector3(0, 1, 0),
+				new THREE.Vector3(-0.5, -1.5, 0),
+				new THREE.Vector3(-2, -1.5, 0),
+				new THREE.Vector3(-2.5, 1, 0)
+			);
+
+      		var handleU = new THREE.Mesh( new THREE.TubeGeometry(handleUBezier, 10, 0.3, 10, false, false), 
+      			new THREE.MeshBasicMaterial({color: 0x000000, opacity: 1 }));
+      		handleU.position.set(x, -3.6, z);
+      		group.add(handleU);	
+		}
+		function addCube(x) {
+			var geometry = new THREE.CubeGeometry( 20, 20, 20 );
+			for ( var i = 0; i < geometry.faces.length; i += 2 ) {
+				var hex = Math.random() * 0xffffff;
+				geometry.faces[ i ].color.setHex( hex );
+				geometry.faces[ i + 1 ].color.setHex( hex );
+			}
+			var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
+			var cube = new THREE.Mesh( geometry, material );
+			cube.position.set(x,0,0);
+			group.add( cube );
+		}
+		// animation loop
+		function animate() {
+
+			// loop on request animation loop
+			// - it has to be at the begining of the function
+			// - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+			requestAnimationFrame( animate );
+
+			// do the render
+			render();
+			update();			
+		}
+
+		// render the scene
+		function render() {
+			cameraControls.update();
+			renderer.render( scene, camera );
+		}
+
+		var a = 0, b = 0;
+		function update() {
+			if (keyboard.pressed("w")) {
+				group.position.z += 1;
+			}
+			if (keyboard.pressed("a")) {
+				group.position.x += 1;
+			}
+			if (keyboard.pressed("s")) {
+				group.position.z -= 1;
+			}
+			if (keyboard.pressed("d")) {
+				group.position.x -= 1;
+			}
+			if (keyboard.pressed("right")) {
+				camera.position.x += 1;
+			}
+			if (keyboard.pressed("left")) {
+				camera.position.x -= 1;
+			}
+			if (keyboard.pressed("up")) {
+				camera.position.y += 1;
+			}
+			if (keyboard.pressed("down")) {
+				camera.position.y -= 1;
+			}
+			if (keyboard.pressed("q")) {
+				camera.position.z += 1;
+			}
+			if (keyboard.pressed("e")) {
+				camera.position.z -= 1;
+			}
+			if (keyboard.pressed("1")) {
+				camera.position.set(0, 150, 0);
+				group.position.set(0, 0, 0);
+			}
+			if (keyboard.pressed("2")) {
+				camera.position.set(0, 0, 150);
+				group.position.set(0, 0, 0);
+			}
+			
+			if (keyboard.pressed("x")) {
+				a += 0.15;
+				b += 0.15;
+				if (a >= 90 / 360 * Math.PI * 2 ) a = -90 / 360 * Math.PI * 2;
+				if (b >= 90 / 360 * Math.PI * 2 ) b = -90 / 360 * Math.PI * 2;
+				console.log(b);
+				camera.position.x = Math.floor(Math.cos( a ) * 10);
+  				camera.position.z = Math.floor(Math.sin( b ) * 10);
+			}
+			if (keyboard.pressed("r")) {
+				rotateMode = true;
+			}
+			if (keyboard.pressed("t")) {
+				rotateMode = false;
+			}
+			if (rotateMode) {
+				group.children.forEach(function(rella) { rella.rotation.y += 0.05; })
+			}
+			// update stats
+			stats.update();
+		}
+	</script>
+</body>
+</html>
