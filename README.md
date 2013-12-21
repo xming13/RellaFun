@@ -1,4 +1,4 @@
-UmbrellaFun
+RellaFun
 ===========
 
-beautiful umbrellas
+exploring beautiful umbrellas in the rain.
