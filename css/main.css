@@ -120,15 +120,15 @@ h2 {
 	padding: 10px 0;
 	border-top: 1px solid white;
 }
-#credits a {
+#credits a, #intro a {
 	color: white;
 	font-weight: bold;
 }
-#credits a:visited {
+#credits a:visited, #intro a:visited {
 	color: #5C5858;
 	font-weight: bold;
 }
-#credits a:hover {
+#credits a:hover, #intro a:hover {
 	color: grey;
 	font-weight: bold;
 }
