@@ -13,8 +13,6 @@
 		<script src="js/threex/THREEx.KeyboardState.js"></script>
 		<script src="js/threex/THREEx.screenshot.js"></script>
 		<script src="js/threex/THREEx.FullScreen.js"></script>
-		<script src="js/threex/THREEx.WindowResize.js"></script>
-		<script src="js/threex/threex.dragpancontrols.js"></script>
 		<script src="js/ParticleEngine.js"></script>
 		<script src="js/ParticleEngineExamples.js"></script>
 
@@ -23,6 +21,7 @@
 		<script src="js/jquery-ui.js"></script>
 		<script src="js/info.js"></script>
 		
+		<link  href="css/reset.css" rel="stylesheet"/>
 		<link  href="css/main.css" rel="stylesheet"/>
 		<link rel=stylesheet href="css/jquery-ui.css" />
 		<link rel=stylesheet href="css/info.css"/>
@@ -30,25 +29,62 @@
 <body>
 	<!-- three.js container -->
     <div id="container"></div>
-	<!-- info on screen display -->
-	<div id="infoButton"></div>
-	<div id="infoBox" title="Rella Fun">
-		Developed using <a href="https://github.com/mrdoob/three.js/" target="_blank">three.js</a>
-		<u>Credit to</u>
-		three.js
-		Particle System
-		http://lab.aerotwist.com/webgl/photoparticles/
-		<div class="bottom" id="inlineDoc" >
-			- <i>p</i> for screenshot
+    <!-- panel -->
+    <div id="panel">
+		<!-- file drop area-->
+		<div id="fileDrop">
+			<h1>Create your own Rella here!</h1>
+			<center>
+				<img src="images/drop-image.png" width="200px" />
+			</center>
+		</div>
+		<div id="config" class="holder">
+			<div class="config-set clearfix">
+				<h2>Rotate Mode:</h2>
+				<a href="#" id="rotate-mode-on">On</a>
+				<a href="#" id="rotate-mode-off" class="disabled">Off</a>
+			</div>
+			<div class="config-set clearfix">
+				<h2>Rain Mode:</h2>
+				<a href="#" id="rain-mode-on">On</a>
+				<a href="#" id="rain-mode-off" class="disabled">Off</a>
+			</div>
 		</div> 
-	</div> 
-	<div id="menu" style="position:absolute;top:10%">
-		<img id="imgAddFile" src="images/icon-info.png" title="Create your own rella!" />
+		<div id="controls" class="holder">
+			<h2>Controls</h2>
+			- <i>1, 2, 3</i> for changing camera view
+			<br />
+			- <i>w, s, a, d, q, e</i> for changing rellas position
+			<br />
+			- <i>up, down, left, right, z, x</i> for changing camera position
+			<br />
+			- <i> b / n</i> for enable/disable rotate mode
+			<br />
+			- <i> c / v</i> for enable/disable rain mode
+			<br />
+			- <i>p</i> for screenshot
+		</div>
+		<div id="intro" class="holder">
+			<h2>Notes</h2>
+			<p>
+				I have always imagined being able to take a photograph of the umbrellas on a rainy day from the sky.
+				I think the world needs more beautiful umbrellas and rainbow.
+			</p>
+		</div>
+		<div id="credits" class="holder">
+			<h2>Credits</h2>
+			<b> Many thanks to </b>
+			<br />
+			<a href="https://github.com/mrdoob/three.js" target="_blank">three.js</a> by <a href="https://github.com/mrdoob" target="_blank">mrdoob</a>
+			<br />
+			<a href="https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/ParticleEngine.js" target="_blank">ParticleEngine.js</a> by <a href="https://github.com/stemkoski" target="_blank">Lee Stemkoski </a>
+			<br />
+			<a href="http://lab.aerotwist.com/webgl/photoparticles" target="_blank">Photo Particles</a> by <a href="aerotwist.com" target="_blank">Aerotwist<a>
+		</div>
 	</div>
-	<!-- file drop area-->
-	<div id="fileDrop">
-		<span class="helper"></span>
-		<img src="images/drop-image.png" />
+	<div class="clear"></div>
+	<div id="addFile">
+		<img id="imgAddFile" src="images/icon-info.png" title="Create your own rella!" />
 	</div>
 
 	<script type="text/javascript">
@@ -68,6 +104,53 @@
 			isFileDropVisible = false,
 			isRotateMode = true,
 			currentSquareNumber;
+
+		callbacks = {
+			rotateModeOn: function() {
+				isRotateMode = true;
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+				return false;
+			},
+			rotateModeOff: function() {
+				isRotateMode = false;
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+				return false;
+			},
+			rainModeOn: function() {
+				engine.destroy();
+				engine = new ParticleEngine();
+				engine.setValues( Examples.rain );
+				engine.initialize();
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+				return false;
+			},
+			rainModeOff: function() {
+				engine.destroy();
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+				return false;
+			},
+			showHideFileDrop: function() {
+				if (isFileDropVisible) {
+					hideFileDrop();
+				}
+				else {
+					showFileDrop();
+				}
+				isFileDropVisible = !isFileDropVisible;
+				return false;
+			},
+			windowResize: function() {
+				var width 		= isFileDropVisible ? window.innerWidth - 300 : window.innerWidth;
+				var height		= window.innerHeight;
+				camera.aspect 	= width / height;
+				renderer.setSize(width, height);				
+				camera.updateProjectionMatrix();
+			}
+		};
 
 		if( !init() )	animate();
 
@@ -111,14 +194,12 @@
 			// create a camera contol
 			cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
 
-			// transparently support window resize
-			windowResize = THREEx.WindowResize.bind(renderer, camera);
 			// allow 'p' to make screenshot
 			THREEx.Screenshot.bindKey(renderer);
 			// allow 'f' to go fullscreen where this feature is supported
 			if( THREEx.FullScreen.available() ){
 				THREEx.FullScreen.bindKey();		
-				document.getElementById('inlineDoc').innerHTML	+= "<br/> - <i>f</i> for fullscreen";
+				document.getElementById('controls').innerHTML	+= "<br/> - <i>f</i> for fullscreen";
 			}
 
 			// LIGHT
@@ -133,6 +214,7 @@
 			scene.add(skyBox);
 			scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
 
+			// RELLA IMAGE
 			rellaImage = [ 
 				'MeshNormalMaterial',
 				'images/rrh1.png', 
@@ -157,12 +239,11 @@
 			var sqrtNum = Math.floor(Math.sqrt(rellaImage.length));
 			currentSquareNumber = sqrtNum * sqrtNum;
 
+			// RELLA
 			group = new THREE.Object3D();
-
 			for (var i = 0; i < rellaImage.length; i++) {
 				addRella(i);
 			}
-
 			scene.add( group );
 
 			// PARTICLE SYSTEM
@@ -170,7 +251,7 @@
 			engine.setValues( Examples.rain );
 			engine.initialize();
 
-			// add Listeners
+			// ADD Listeners
 			addEventListeners();
 		}
 
@@ -245,34 +326,30 @@
       		group.add(handleU);	
 		}
 
-		function addEventListeners() {
-			var $imgAddFile = document.getElementById('imgAddFile');
-			$imgAddFile.addEventListener('click', showHideFileDrop, false);
 
-			var fileDrop =  document.getElementById('fileDrop');
-			//$fileDrop[0];
+		function addEventListeners() {
+			var fileDrop = document.getElementById('fileDrop');
 			fileDrop.addEventListener('dragover', cancel, false);
 			fileDrop.addEventListener('dragenter', cancel, false);
 			fileDrop.addEventListener('dragexit', cancel, false);
 			fileDrop.addEventListener('drop', dropFile, false);
-		}
-		function showHideFileDrop() {
-			if (isFileDropVisible) {
-				hideFileDrop();
-			}
-			else {
-				showFileDrop();
-			}
-			isFileDropVisible = !isFileDropVisible;
+
+			$('#rotate-mode-on').click(callbacks.rotateModeOn);
+			$('#rotate-mode-off').click(callbacks.rotateModeOff);
+
+			$('#rain-mode-on').click(callbacks.rainModeOn);
+			$('#rain-mode-off').click(callbacks.rainModeOff);
+			
+			$('#imgAddFile').click(callbacks.showHideFileDrop);
+
+			$(window).resize(callbacks.windowResize);
 		}
 		function showFileDrop() {
-			windowResize.stop();
 			renderer.setSize( window.innerWidth - 300, window.innerHeight );
-			// camera.aspect	= window.innerWidth / window.innerHeight;
-			// camera.updateProjectionMatrix();
+			camera.aspect	= (window.innerWidth - 300) / window.innerHeight;
+			camera.updateProjectionMatrix();
 		}
 		function hideFileDrop() {
-			windowResize = THREEx.WindowResize.bind(renderer, camera);
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			camera.aspect	= window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
@@ -355,7 +432,6 @@
 			renderer.render( scene, camera );
 		}
 
-		var a = 0, b = 0;
 		function update() {
 			if (keyboard.pressed("w")) {
 				group.position.z += 1;
@@ -369,6 +445,12 @@
 			if (keyboard.pressed("d")) {
 				group.position.x -= 1;
 			}
+			if (keyboard.pressed("q")) {
+				group.position.y += 1;
+			}
+			if (keyboard.pressed("e")) {
+				group.position.y -= 1;
+			}
 			if (keyboard.pressed("right")) {
 				camera.position.x += 1;
 			}
@@ -381,44 +463,35 @@
 			if (keyboard.pressed("down")) {
 				camera.position.y -= 1;
 			}
-			if (keyboard.pressed("q")) {
+			if (keyboard.pressed("z")) {
 				camera.position.z += 1;
 			}
-			if (keyboard.pressed("e")) {
+			if (keyboard.pressed("x")) {
 				camera.position.z -= 1;
 			}
 			if (keyboard.pressed("1")) {
 				camera.position.set(0, 150, 0);
-				group.position.set(0, 0, 0);
+				group.position.set(0, 0, -35);
 			}
 			if (keyboard.pressed("2")) {
 				camera.position.set(0, 0, 150);
 				group.position.set(0, 0, 0);
 			}
+			if (keyboard.pressed("3")) {
+				camera.position.set(90, 70, 100);
+				group.position.set(0, 0, 0);
+			}
+			if (keyboard.pressed("c")) {
+				$('#rain-mode-on').click();
+			}
+			if (keyboard.pressed("v")) {
+				$('#rain-mode-off').click();
+			}
+			if (keyboard.pressed("b")) {
+				$('#rotate-mode-on').click();
+			}
 			if (keyboard.pressed("n")) {
-				engine.destroy();
-				engine = new ParticleEngine();
-				engine.setValues( Examples.rain );
-				engine.initialize();
-			}
-			if (keyboard.pressed("m")) {
-				engine.destroy();	
-			}
-			
-			if (keyboard.pressed("x")) {
-				a += 0.15;
-				b += 0.15;
-				if (a >= 90 / 360 * Math.PI * 2 ) a = -90 / 360 * Math.PI * 2;
-				if (b >= 90 / 360 * Math.PI * 2 ) b = -90 / 360 * Math.PI * 2;
-				console.log(b);
-				camera.position.x = Math.floor(Math.cos( a ) * 10);
-  				camera.position.z = Math.floor(Math.sin( b ) * 10);
-			}
-			if (keyboard.pressed("r")) {
-				isRotateMode = true;
-			}
-			if (keyboard.pressed("t")) {
-				isRotateMode = false;
+				$('#rotate-mode-off').click();
 			}
 			if (isRotateMode) {
 				group.children.forEach(function(rella) { rella.rotation.y += 0.05; })
