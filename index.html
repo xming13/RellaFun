@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>R ella Fun (three.js)</title>
+		<title>Rella Fun (three.js)</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 				
@@ -15,6 +15,8 @@
 		<script src="js/threex/THREEx.FullScreen.js"></script>
 		<script src="js/threex/THREEx.WindowResize.js"></script>
 		<script src="js/threex/threex.dragpancontrols.js"></script>
+		<script src="js/ParticleEngine.js"></script>
+		<script src="js/ParticleEngineExamples.js"></script>
 
 		<!-- jQuery code to display an information button and box when clicked. -->
 		<script src="js/jquery-1.9.1.js"></script>
@@ -40,8 +42,10 @@
 	<script type="text/javascript">
 		var stats, scene, renderer;
 		var camera, cameraControls;
+		var clock = new THREE.Clock();
 		var keyboard = new THREEx.KeyboardState();
 		var group;
+		var engine;
 		var rellaBoxSize = 20;
 		var rellaImage;
 		var rotateMode = false;
@@ -97,8 +101,25 @@
 				document.getElementById('inlineDoc').innerHTML	+= "<br/> - <i>f</i> for fullscreen";
 			}
 
+			// LIGHT
+			var light = new THREE.PointLight(0xffffff);
+			light.position.set(0,250,0);
+			
+			// SKYBOX/FOG
+			var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+			var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
+			var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+		 	skyBox.flipSided = true; // render faces from inside of the cube, instead of from outside (default).
+			scene.add(skyBox);
+			scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+
 			rellaImage = [ 
-				'images/checkerboard.jpg', 
+				'images/rrh1.png', 
+				'images/rrh2.png', 
+				'images/ponybrown.png', 
+				'images/watermelon.png', 
+				'images/clock.png',
+				'images/checkerboard.jpg',
 				'images/icon-info.png', 
 				'images/icon-close-16.png', 
 				'images/disc.png',
@@ -108,13 +129,14 @@
 				'images/bg.png',
 				'images/moon.png', 
 				'images/grey-moon.png', 
-				'images/earth.jpg'    
+				'images/earth.jpg',
+				'images/rainbow.png'
 			];
 
 			group = new THREE.Object3D();
 
 			var rellaImageLength = rellaImage.length;			
-			var numRows = Math.floor(Math.sqrt(rellaImageLength));
+			var numRows = Math.floor(Math.sqrt(rellaImageLength + 1));
 			var startX = -1 * numRows / 2 * rellaBoxSize;
 			var startZ = 0;
 			var row, column;
@@ -128,6 +150,11 @@
 				startZ + rellaImageLength % numRows * rellaBoxSize);
 
 			scene.add( group );
+
+			// PARTICLE SYSTEM
+			engine = new ParticleEngine();
+			engine.setValues( Examples.rain );
+			engine.initialize();
 		}
 
 		function addRellaRainbow( x, z ) {
@@ -239,6 +266,15 @@
 				camera.position.set(0, 0, 150);
 				group.position.set(0, 0, 0);
 			}
+			if (keyboard.pressed("n")) {
+				engine.destroy();
+				engine = new ParticleEngine();
+				engine.setValues( Examples.rain );
+				engine.initialize();
+			}
+			if (keyboard.pressed("m")) {
+				engine.destroy();	
+			}
 			
 			if (keyboard.pressed("x")) {
 				a += 0.15;
@@ -258,6 +294,9 @@
 			if (rotateMode) {
 				group.children.forEach(function(rella) { rella.rotation.y += 0.05; })
 			}
+
+			var dt = clock.getDelta();
+			if (engine) engine.update( dt * 0.5 );
 			// update stats
 			stats.update();
 		}

@@ -1,5 +1,6 @@
-/**
-* @author Lee Stemkoski   http://www.adelphi.edu/~stemkoski/
+
+<!-- saved from url=(0064)http://stemkoski.github.io/Three.js/js/ParticleEngineExamples.js -->
+/* @author Lee Stemkoski   http://www.adelphi.edu/~stemkoski/
 */
 
 /* 
@@ -60,7 +61,7 @@
 	particleDeathAge   : 2.0,		
 	emitterDeathAge    : 60	
 */
-var screen_top = SCREEN_HEIGHT / 2;
+
 Examples =
 {
 
@@ -150,7 +151,7 @@ Examples =
 	{
 		positionStyle  : Type.CUBE,
 		positionBase   : new THREE.Vector3( -100, 100,  0 ),
-		positionSpread : new THREE.Vector3(    0,  50, 50 ),
+		positionSpread : new THREE.Vector3(    0,  50, 60 ),
 		
 		velocityStyle  : Type.CUBE,
 		velocityBase   : new THREE.Vector3( 40, 0, 0 ),
@@ -158,8 +159,8 @@ Examples =
 		
 		particleTexture : THREE.ImageUtils.loadTexture( 'images/smokeparticle.png'),
 
-		sizeBase     : 50.0,
-		sizeSpread   : 50.0,
+		sizeBase     : 80.0,
+		sizeSpread   : 100.0,
 		colorBase    : new THREE.Vector3(0.0, 0.0, 1.0), // H,S,L
 		opacityTween : new Tween([0,1,4,5],[0,1,1,0]),
 
@@ -343,200 +344,6 @@ Examples =
 		particlesPerSecond : 60,
 		particleDeathAge   : 1.5,		
 		emitterDeathAge    : 60
-	},
-
-	m_fallingstar:
-	{
-		positionStyle    : Type.CUBE,
-		positionBase     : new THREE.Vector3( 0,  screen_top, 0 ),
-		positionSpread   : new THREE.Vector3( SCREEN_WIDTH , 0, 0 ),
-		
-		velocityStyle    : Type.CUBE,
-		velocityBase     : new THREE.Vector3( 0,  SCREEN_HEIGHT / -4, 0 ),
-		velocitySpread   : new THREE.Vector3( 20, 20, 0 ), 
-
-		accelerationBase : new THREE.Vector3( 0, -50, 0 ),
-		
-		particleTexture : THREE.ImageUtils.loadTexture( 'images/yellow-star.png' ),
-
-		angleBase               : 0,
-		angleSpread             : 720,
-		angleVelocityBase       : 0,
-		angleVelocitySpread     : 360 * 4,
-		
-		sizeTween    : new Tween( [0, 1], [30, 50] ),
-		opacityTween : new Tween( [2, 3], [1, 0] ),
-		//colorTween   : new Tween( [0.5, 2], [ new THREE.Vector3(0,1,0.5), new THREE.Vector3(0.8, 1, 0.5) ] ),
-		sizeBase    : 30.0,
-		sizeSpread  : 5.0,				
-		colorBase   : new THREE.Vector3(0.15, 1.0, 0.8), // H,S,L
-		opacityBase : 1,
-		blendStyle  : THREE.AdditiveBlending,
-
-		particlesPerSecond : 20,
-		particleDeathAge   : 10.0,		
-		emitterDeathAge    : 300
-	},
-
-	m_starfieldblink :
-	{
-		positionStyle    : Type.CUBE,
-		positionBase     : new THREE.Vector3( 0, screen_top, 0 ),
-		positionSpread   : new THREE.Vector3( SCREEN_WIDTH , SCREEN_HEIGHT / 8, 0 ),
-
-		velocityStyle    : Type.CUBE,
-		velocityBase     : new THREE.Vector3( 0, 0, 0 ),
-		velocitySpread   : new THREE.Vector3( 0.5, 0.5, 0 ), 
-		
-		accelerationBase : new THREE.Vector3( 0, -20, 0 ),
-
-		angleBase               : 0,
-		angleSpread             : 720,
-		angleVelocityBase       : 0,
-		angleVelocitySpread     : 4,
-		
-		particleTexture : THREE.ImageUtils.loadTexture( 'images/spikey.png' ),
-		
-		sizeBase    : 15.0,
-		sizeSpread  : 5.0,				
-		colorBase   : new THREE.Vector3(0.15, 1.0, 0.9), // H,S,L
-		colorSpread : new THREE.Vector3(0.00, 0.0, 0.2),
-		opacityBase : 1,
-		opacitySpread: 0.5,
-		opacityTween : new Tween( [0, 1, 2], [1, 0, 1] ),
-
-		particlesPerSecond : 50,
-		particleDeathAge   : 30.0,		
-		emitterDeathAge    : 600
-	},
-
-	m_whiteclouds :
-	{
-		positionStyle  : Type.CUBE,
-		positionBase   : new THREE.Vector3(  0,  0,  0 ),
-		positionSpread : new THREE.Vector3(  SCREEN_WIDTH, SCREEN_HEIGHT / 2, 0 ),
-		
-		velocityStyle  : Type.CUBE,
-		velocityBase   : new THREE.Vector3( 0, 0, 0 ),
-		velocitySpread : new THREE.Vector3( 30, 0, 0 ), 
-		
-		particleTexture : THREE.ImageUtils.loadTexture( 'images/whiteclouds.png'),
-
-		sizeBase     : 300.0,
-		sizeSpread   : 100.0,
-		colorBase    : new THREE.Vector3(0.0, 0.0, 1.0), // H,S,L
-		opacityTween : new Tween([0,1,2,3],[0,1,1,0]),
-
-		particlesPerSecond : 3,
-		particleDeathAge   : 4.0,		
-		emitterDeathAge    : 300,
-	},
-
-	m_snow :
-	{
-		positionStyle    : Type.CUBE,
-		positionBase     : new THREE.Vector3( 0, screen_top, 0 ),
-		positionSpread   : new THREE.Vector3( SCREEN_WIDTH, 0, 0 ),
-		
-		velocityStyle    : Type.CUBE,
-		velocityBase     : new THREE.Vector3( 0, -60, 0 ),
-		velocitySpread   : new THREE.Vector3( 50, 20, 0 ), 
-		accelerationBase : new THREE.Vector3( 0, -20,0 ),
-		
-		angleBase               : 0,
-		angleSpread             : 720,
-		angleVelocityBase       :  0,
-		angleVelocitySpread     : 60,
-		
-		particleTexture : THREE.ImageUtils.loadTexture( 'images/snowflake.png' ),
-			
-		sizeTween    : new Tween( [0, 1], [1, 20] ),
-		colorBase   : new THREE.Vector3(0.66, 1.0, 0.9), // H,S,L
-		opacityTween : new Tween( [2, 3], [0.8, 0.6] ),
-
-		particlesPerSecond : 40,
-		particleDeathAge   : 10.0,		
-		emitterDeathAge    : 300
-	},
-
-	m_starfield :
-	{
-		positionStyle    : Type.CUBE,
-		positionBase     : new THREE.Vector3( 0, SCREEN_HEIGHT / 6, 0 ),
-		positionSpread   : new THREE.Vector3( SCREEN_WIDTH, SCREEN_HEIGHT / 1.5, 0 ),
-
-		velocityStyle    : Type.CUBE,
-		velocityBase     : new THREE.Vector3( 0, 0, 0 ),
-		velocitySpread   : new THREE.Vector3( 0.5, 0.5, 0 ), 
-		
-		angleBase               : 0,
-		angleSpread             : 720,
-		angleVelocityBase       : 0,
-		angleVelocitySpread     : 4,
-
-		particleTexture : THREE.ImageUtils.loadTexture( 'images/spikey.png' ),
-		
-		sizeBase    : 10.0,
-		sizeSpread  : 5.0,				
-		colorBase   : new THREE.Vector3(0.15, 1.0, 0.9), // H,S,L
-		colorSpread : new THREE.Vector3(0.00, 0.0, 0.2),
-		opacityBase : 1,
-		opacitySpread: 0.9,
-
-		particlesPerSecond : 8000,
-		particleDeathAge   : 60.0,		
-		emitterDeathAge    : 0.1
-	},
-
-	m_firework :
-	{
-		positionStyle  : Type.SPHERE,
-		positionBase   : new THREE.Vector3( 0, 10, 200 ),
-		positionRadius : 5,
-		
-		velocityStyle  : Type.SPHERE,
-		speedBase      : 90,
-		speedSpread    : 10,
-		
-		accelerationBase : new THREE.Vector3( 0, -80, 0 ),
-		
-		particleTexture : THREE.ImageUtils.loadTexture( 'images/spark.png' ),
-		
-		sizeTween    : new Tween( [0.5, 0.7, 1.3], [5, 40, 1] ),
-		opacityTween : new Tween( [0.2, 0.7, 2.5], [0.75, 1, 0] ),
-		colorTween   : new Tween( [0.4, 0.8, 1.0], [ new THREE.Vector3(0,1,1), new THREE.Vector3(0,1,0.6), new THREE.Vector3(0.8, 1, 0.6) ] ),
-		blendStyle   : THREE.AdditiveBlending,  
-		
-		particlesPerSecond : 200,					
-		particleDeathAge   : 2.5,		
-		emitterDeathAge    : 60
-	},
-
-	m_starfountain :
-	{
-		positionStyle    : Type.CUBE,
-		positionBase     : new THREE.Vector3( 0,  SCREEN_HEIGHT / -4, 1 ),
-		positionSpread   : new THREE.Vector3( SCREEN_WIDTH / 12, 0, 0 ),
-		
-		velocityStyle    : Type.CUBE,
-		velocityBase     : new THREE.Vector3( 0,  SCREEN_HEIGHT / 1.5 , 0 ),
-		velocitySpread   : new THREE.Vector3( SCREEN_WIDTH / 4, SCREEN_HEIGHT / 16, 0 ), 
-
-		accelerationBase : new THREE.Vector3( 0, SCREEN_HEIGHT / -3, 0 ),
-		
-		particleTexture : THREE.ImageUtils.loadTexture( 'images/star.png' ),
-
-		angleBase               : 0,
-		angleSpread             : 180,
-		angleVelocityBase       : 0,
-		angleVelocitySpread     : 360 * 4,
-		
-		sizeTween    : new Tween( [0, 1], [1, 20] ),
-		opacityTween : new Tween( [2, 4], [1, 0] ),
-		colorTween   : new Tween( [0.5, 2], [ new THREE.Vector3(0,1,0.5), new THREE.Vector3(0.8, 1, 0.5) ] ),
-
-		particlesPerSecond : 80,
-		particleDeathAge   : 4.0,		
-		emitterDeathAge    : 60
-	}	
+	}
+	
 }
