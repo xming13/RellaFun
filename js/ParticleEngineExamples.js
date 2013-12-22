@@ -217,7 +217,7 @@ Examples =
 
 		particlesPerSecond : 1000,
 		particleDeathAge   : 1.0,		
-		emitterDeathAge    : 60
+		emitterDeathAge    : 9999
 	},
 		
 	starfield :

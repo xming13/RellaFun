@@ -34,21 +34,40 @@
 	<div id="infoButton"></div>
 	<div id="infoBox" title="Rella Fun">
 		Developed using <a href="https://github.com/mrdoob/three.js/" target="_blank">three.js</a>
+		<u>Credit to</u>
+		three.js
+		Particle System
+		http://lab.aerotwist.com/webgl/photoparticles/
 		<div class="bottom" id="inlineDoc" >
 			- <i>p</i> for screenshot
 		</div> 
 	</div> 
+	<div id="menu" style="position:absolute;top:10%">
+		<img id="imgAddFile" src="images/icon-info.png" title="Create your own rella!" />
+	</div>
+	<!-- file drop area-->
+	<div id="fileDrop">
+		<span class="helper"></span>
+		<img src="images/drop-image.png" />
+	</div>
 
 	<script type="text/javascript">
-		var stats, scene, renderer;
-		var camera, cameraControls;
-		var clock = new THREE.Clock();
-		var keyboard = new THREEx.KeyboardState();
-		var group;
-		var engine;
-		var rellaBoxSize = 20;
-		var rellaImage;
-		var rotateMode = false;
+		var stats, 
+			scene, 
+			renderer,
+			camera, 
+			cameraControls,
+			windowResize,
+			clock = new THREE.Clock(),
+			keyboard = new THREEx.KeyboardState(),
+			group,
+			engine,
+			rellaBoxSize = 20,
+			rellaImage,
+			fileDrop,
+			isFileDropVisible = false,
+			isRotateMode = true,
+			currentSquareNumber;
 
 		if( !init() )	animate();
 
@@ -68,6 +87,7 @@
 			}else{
 				renderer	= new THREE.CanvasRenderer();
 			}
+			// renderer.setSize( window.innerWidth, window.innerHeight );
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.getElementById('container').appendChild(renderer.domElement);
 
@@ -92,7 +112,7 @@
 			cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
 
 			// transparently support window resize
-			THREEx.WindowResize.bind(renderer, camera);
+			windowResize = THREEx.WindowResize.bind(renderer, camera);
 			// allow 'p' to make screenshot
 			THREEx.Screenshot.bindKey(renderer);
 			// allow 'f' to go fullscreen where this feature is supported
@@ -114,6 +134,7 @@
 			scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
 
 			rellaImage = [ 
+				'MeshNormalMaterial',
 				'images/rrh1.png', 
 				'images/rrh2.png', 
 				'images/ponybrown.png', 
@@ -122,6 +143,7 @@
 				'images/checkerboard.jpg',
 				'images/icon-info.png', 
 				'images/icon-close-16.png', 
+				'images/drop-image.png',
 				'images/disc.png',
 				'images/crate.png',    
 				'images/cloud.png',    
@@ -132,22 +154,14 @@
 				'images/earth.jpg',
 				'images/rainbow.png'
 			];
+			var sqrtNum = Math.floor(Math.sqrt(rellaImage.length));
+			currentSquareNumber = sqrtNum * sqrtNum;
 
 			group = new THREE.Object3D();
 
-			var rellaImageLength = rellaImage.length;			
-			var numRows = Math.floor(Math.sqrt(rellaImageLength + 1));
-			var startX = -1 * numRows / 2 * rellaBoxSize;
-			var startZ = 0;
-			var row, column;
-
-			for (var i = 0; i < rellaImageLength; i++) {
-				row = Math.floor(i / numRows);
-				column = i % numRows;
-				addRellaWithImage( rellaImage[i], startX + row * rellaBoxSize, startZ + column * rellaBoxSize );
+			for (var i = 0; i < rellaImage.length; i++) {
+				addRella(i);
 			}
-			addRellaRainbow( startX + Math.floor(rellaImageLength / numRows) * rellaBoxSize, 
-				startZ + rellaImageLength % numRows * rellaBoxSize);
 
 			scene.add( group );
 
@@ -155,27 +169,58 @@
 			engine = new ParticleEngine();
 			engine.setValues( Examples.rain );
 			engine.initialize();
+
+			// add Listeners
+			addEventListeners();
 		}
 
-		function addRellaRainbow( x, z ) {
-			var halfSphereGeometry = new THREE.SphereGeometry(10, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2.7);
-			var halfSphereMaterial = new THREE.MeshNormalMaterial({ side : THREE.DoubleSide });
-			var halfSphereMesh 	   = new THREE.Mesh( halfSphereGeometry, halfSphereMaterial );
-			halfSphereMesh.position.set(x, 0, z);
-			group.add( halfSphereMesh );
-
-			addRellaHandle(x, z);
+		function isPerfectSquare(i) {
+			return Math.sqrt(i) % 1 == 0;
 		}
-		function addRellaWithImage( imgPath, x, z ) {
-			var texture = new THREE.ImageUtils.loadTexture( imgPath );
-			var material = new THREE.MeshBasicMaterial({ map: texture, side : THREE.DoubleSide  });
-			var geometry = new THREE.SphereGeometry(10, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2.7);
-			var mesh = new THREE.Mesh( geometry, material );
-			mesh.position.set(x, 0, z);
-			group.add(mesh);
-
-			addRellaHandle(x, z);
+		function reloadRella(numRella) {
+			scene.remove(group);
+			group = new THREE.Object3D();
+			for (var i = 0; i < numRella; i++ ) {
+				addRella(i);
+			}
+			scene.add(group);
 		}
+		function addRella(rellaImageIndex) {
+			var rellaNumber = rellaImageIndex + 1;
+			if (rellaNumber > currentSquareNumber && isPerfectSquare(rellaNumber)) {
+				currentSquareNumber = rellaNumber;
+				reloadRella(rellaNumber);
+			}
+			else {				
+				var numRows = Math.floor(Math.sqrt(rellaImage.length));
+				var startX = -1 * numRows / 2 * rellaBoxSize;
+				var startZ = 0;
+				var row = Math.floor(rellaImageIndex / numRows);
+				var column = rellaImageIndex % numRows;
+				var x = startX + row * rellaBoxSize;
+				var z = startZ + column * rellaBoxSize; 
+				var material;
+
+				if (rellaImage[rellaImageIndex] == 'MeshNormalMaterial') {
+					material = new THREE.MeshNormalMaterial({ side : THREE.DoubleSide  });	
+				}
+				else {
+					var texture = new THREE.ImageUtils.loadTexture( rellaImage[rellaImageIndex] );
+					material = new THREE.MeshBasicMaterial({ map: texture, side : THREE.DoubleSide  });
+				}
+				var geometry = new THREE.SphereGeometry(10, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2.7);
+				var mesh = new THREE.Mesh( geometry, material );
+				mesh.position.set(x, 0, z);
+				if (group.children && group.children[0]) {
+					var rotation = group.children[0].rotation;
+					mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+				}
+				group.add(mesh);
+
+				addRellaHandle(x, z);
+			}
+		}
+
 		function addRellaHandle(x, z) {
 			var handleL = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 13.5, 8, 1, false), 
 				new THREE.MeshBasicMaterial({color: 0x000000, opacity: 1}));
@@ -193,20 +238,104 @@
       		var handleU = new THREE.Mesh( new THREE.TubeGeometry(handleUBezier, 10, 0.3, 10, false, false), 
       			new THREE.MeshBasicMaterial({color: 0x000000, opacity: 1 }));
       		handleU.position.set(x, -3.6, z);
+      		if (group.children && group.children[0]) {
+				var rotation = group.children[0].rotation;
+				handleU.rotation.set(rotation.x, rotation.y, rotation.z);
+			}
       		group.add(handleU);	
 		}
-		function addCube(x) {
-			var geometry = new THREE.CubeGeometry( 20, 20, 20 );
-			for ( var i = 0; i < geometry.faces.length; i += 2 ) {
-				var hex = Math.random() * 0xffffff;
-				geometry.faces[ i ].color.setHex( hex );
-				geometry.faces[ i + 1 ].color.setHex( hex );
-			}
-			var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
-			var cube = new THREE.Mesh( geometry, material );
-			cube.position.set(x,0,0);
-			group.add( cube );
+
+		function addEventListeners() {
+			var $imgAddFile = document.getElementById('imgAddFile');
+			$imgAddFile.addEventListener('click', showHideFileDrop, false);
+
+			var fileDrop =  document.getElementById('fileDrop');
+			//$fileDrop[0];
+			fileDrop.addEventListener('dragover', cancel, false);
+			fileDrop.addEventListener('dragenter', cancel, false);
+			fileDrop.addEventListener('dragexit', cancel, false);
+			fileDrop.addEventListener('drop', dropFile, false);
 		}
+		function showHideFileDrop() {
+			if (isFileDropVisible) {
+				hideFileDrop();
+			}
+			else {
+				showFileDrop();
+			}
+			isFileDropVisible = !isFileDropVisible;
+		}
+		function showFileDrop() {
+			windowResize.stop();
+			renderer.setSize( window.innerWidth - 300, window.innerHeight );
+			// camera.aspect	= window.innerWidth / window.innerHeight;
+			// camera.updateProjectionMatrix();
+		}
+		function hideFileDrop() {
+			windowResize = THREEx.WindowResize.bind(renderer, camera);
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			camera.aspect	= window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+		}
+		function dropFile(event)
+		{
+			// stop the browser doing
+			// it's normal thing of going
+			// to the item
+			event.stopPropagation();
+			event.preventDefault();
+			
+			// query what was dropped
+			var files = event.dataTransfer.files;
+			
+			// if we have something
+			if(files.length) {
+				handleFile(files[0]);
+			}
+			
+			return false;
+		}
+	
+		/**
+		 * Handles the uploaded file
+		 */
+		function handleFile(file)
+		{
+			var fileReader 			= new FileReader();
+			fileReader.onloadend	= fileUploaded;
+			fileReader.readAsDataURL(file);
+		}
+		
+		/**
+		 * File upload handled
+		 */
+		function fileUploaded(event)
+		{		
+			// check it's an image
+			if(event.target.result.match(/^data:image/))
+			{
+			    rellaImage.push(event.target.result);
+			    addRella(rellaImage.length - 1);
+			}
+			else
+			{
+				// time to whinge
+				alert("Umm, images only? ... Yeah");
+			}
+		}
+		
+		/**
+		 * Simple handler function for 
+		 * the events we don't care about
+		 */
+		function cancel(event)
+		{
+			if(event.preventDefault)
+				event.preventDefault();
+		
+			return false;
+		}
+
 		// animation loop
 		function animate() {
 
@@ -286,12 +415,12 @@
   				camera.position.z = Math.floor(Math.sin( b ) * 10);
 			}
 			if (keyboard.pressed("r")) {
-				rotateMode = true;
+				isRotateMode = true;
 			}
 			if (keyboard.pressed("t")) {
-				rotateMode = false;
+				isRotateMode = false;
 			}
-			if (rotateMode) {
+			if (isRotateMode) {
 				group.children.forEach(function(rella) { rella.rotation.y += 0.05; })
 			}
 

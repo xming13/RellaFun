@@ -28,3 +28,25 @@ body {
 	right		: 5px;
 	padding		: 5px;
 }
+
+#container {
+	float: left;
+}
+
+#imgAddFile {
+	cursor: pointer;
+}
+#fileDrop {
+	height: 300px;
+	width: 300px;
+	background: black;
+	float: right;
+}
+#fileDrop .helper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+#fileDrop img {
+	vertical-align: middle;
+}
