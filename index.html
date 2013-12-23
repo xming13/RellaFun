@@ -39,16 +39,22 @@
 			</center>
 		</div>
 		<div id="config" class="holder">
-			<div class="config-set clearfix">
+			<div class="config-set clearfix floatleft">
 				<h2>Rotate Mode:</h2>
 				<a href="#" id="rotate-mode-on">On</a>
 				<a href="#" id="rotate-mode-off" class="disabled">Off</a>
 			</div>
-			<div class="config-set clearfix">
+			<div class="config-set clearfix floatleft">
 				<h2>Rain Mode:</h2>
 				<a href="#" id="rain-mode-on">On</a>
 				<a href="#" id="rain-mode-off" class="disabled">Off</a>
 			</div>
+			<div class="config-set clearfix clear">
+				<h2>Camera View:</h2>
+				<a href="#" id="camera-view-top">Top</a>
+				<a href="#" id="camera-view-front" class="disabled">Front</a>
+				<a href="#" id="camera-view-birdeye" class="disabled">Bird's eye</a>
+			</div>			
 		</div> 
 		<div id="controls" class="holder">
 			<h2>Controls</h2>
@@ -68,7 +74,6 @@
 			<h2>Notes</h2>
 			<p>
 				I have always imagined being able to take a photograph of the umbrellas on a rainy day from the sky.
-				I think the world needs more beautiful umbrellas and rainbow.
 			</p>
 			<p>
 				Source: <a href="https://github.com/xming13/RellaFun" target="_blank">https://github.com/xming13/RellaFun</a>
@@ -136,6 +141,27 @@
 				$(this).siblings('a').addClass('disabled');
 				return false;
 			},
+			cameraViewTop: function() {
+				camera.position.set(0, 150, 0);
+				group.position.set(0, 0, -35);
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+				return false;
+			},
+			cameraViewFront: function() {
+				camera.position.set(0, 0, 150);
+				group.position.set(0, 0, 0);
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+				return false;
+			},
+			cameraViewBirdeye: function() {
+				camera.position.set(90, 70, 100);
+				group.position.set(0, 0, -30);
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+				return false;
+			},
 			showHideFileDrop: function() {
 				if (isFileDropVisible) {
 					hideFileDrop();
@@ -189,7 +215,7 @@
 			// put a camera in the scene
 			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000 );
 			camera.up = new THREE.Vector3(0,1,0);
-			camera.position.set(0, 0, 150);
+			camera.position.set(0, 150, 0);
 			camera.lookAt(scene.position);
 
 			scene.add(camera);
@@ -220,9 +246,11 @@
 			// RELLA IMAGE
 			rellaImage = [ 
 				'MeshNormalMaterial',
+				'images/rainbow.png',
+				'images/spectrum.png',
+				'images/ponybrown.png', 
 				'images/rrh1.png', 
 				'images/rrh2.png', 
-				'images/ponybrown.png', 
 				'images/watermelon.png', 
 				'images/clock.png',
 				'images/checkerboard.jpg',
@@ -236,14 +264,14 @@
 				'images/bg.png',
 				'images/moon.png', 
 				'images/grey-moon.png', 
-				'images/earth.jpg',
-				'images/rainbow.png'
+				'images/earth.jpg'
 			];
 			var sqrtNum = Math.floor(Math.sqrt(rellaImage.length));
 			currentSquareNumber = sqrtNum * sqrtNum;
 
 			// RELLA
 			group = new THREE.Object3D();
+			group.position.set(0, 0, -35);
 			for (var i = 0; i < rellaImage.length; i++) {
 				addRella(i);
 			}
@@ -343,6 +371,10 @@
 			$('#rain-mode-on').click(callbacks.rainModeOn);
 			$('#rain-mode-off').click(callbacks.rainModeOff);
 			
+			$('#camera-view-top').click(callbacks.cameraViewTop);
+			$('#camera-view-front').click(callbacks.cameraViewFront);
+			$('#camera-view-birdeye').click(callbacks.cameraViewBirdeye);
+
 			$('#imgAddFile').click(callbacks.showHideFileDrop);
 
 			$(window).resize(callbacks.windowResize);
@@ -473,16 +505,13 @@
 				camera.position.z -= 1;
 			}
 			if (keyboard.pressed("1")) {
-				camera.position.set(0, 150, 0);
-				group.position.set(0, 0, -35);
+				$('#camera-view-top').click();
 			}
 			if (keyboard.pressed("2")) {
-				camera.position.set(0, 0, 150);
-				group.position.set(0, 0, 0);
+				$('#camera-view-front').click();
 			}
 			if (keyboard.pressed("3")) {
-				camera.position.set(90, 70, 100);
-				group.position.set(0, 0, 0);
+				$('#camera-view-birdeye').click();
 			}
 			if (keyboard.pressed("c")) {
 				$('#rain-mode-on').click();

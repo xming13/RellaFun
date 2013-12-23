@@ -132,6 +132,9 @@ h2 {
 	color: grey;
 	font-weight: bold;
 }
+.floatleft {
+	float: left;
+}
 .clear {
 	clear: both;
 }
