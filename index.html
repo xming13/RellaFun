@@ -124,7 +124,6 @@
 			isFileDropVisible = false,
 			isRainMode = true,
 			isRotateMode = true,
-			currentSquareNumber,
 			isSoundRainPlayed = false,
 		 	isSoundSunnyPlayed = false,
 		 	isAudioMute = false;
@@ -174,7 +173,6 @@
 				cameraView.Front = false;
 				cameraView.Birdeye = false;
 				cameraView.Bottom = false;
-				var sqrt = Math.sqrt(currentSquareNumber);
 				camera.position.set(0, 150, 0);
 				group.position.set(0, 0, 0);
 				$(this).removeClass('disabled');
@@ -448,8 +446,6 @@
 				'images/pattern9.jpg',
 				'images/pattern10.jpg'
 			];
-			var sqrtNum = Math.floor(Math.sqrt(rellaImage.length));
-			currentSquareNumber = sqrtNum * sqrtNum;
 
 			// RELLA
 			group = new THREE.Object3D();
