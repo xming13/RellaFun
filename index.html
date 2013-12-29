@@ -10,21 +10,21 @@
 		<!-- https://github.com/mrdoob/stats.js -->
 		<script src="js/threejs/Stats.js"></script>
 		<script src="js/threejs/OrbitControls.js"></script>
-		<script src="js/threex/THREEx.KeyboardState.js"></script>
 		<script src="js/threex/THREEx.screenshot.js"></script>
 		<script src="js/threex/THREEx.FullScreen.js"></script>
 		<script src="js/ParticleEngine.js"></script>
 		<script src="js/ParticleEngineExamples.js"></script>
+		<script src="js/howler.js"></script>
 
 		<!-- jQuery code to display an information button and box when clicked. -->
 		<script src="js/jquery-1.9.1.js"></script>
 		<script src="js/jquery-ui.js"></script>
 		<script src="js/info.js"></script>
 		
-		<link  href="css/reset.css" rel="stylesheet"/>
-		<link  href="css/main.css" rel="stylesheet"/>
-		<link rel=stylesheet href="css/jquery-ui.css" />
-		<link rel=stylesheet href="css/info.css"/>
+		<link href="css/reset.css" rel="stylesheet"/>
+		<link href="css/main.css" rel="stylesheet"/>
+		<link href="css/jquery-ui.css" rel="stylesheet"/>
+		<link href="css/info.css" rel="stylesheet"/>
 	</head>
 <body>
 	<!-- three.js container -->
@@ -39,12 +39,12 @@
 			</center>
 		</div>
 		<div id="config" class="holder">
-			<div class="config-set clearfix floatleft">
+			<div class="config-set clearfix repeat">
 				<h2>Rotate Mode:</h2>
 				<a href="#" id="rotate-mode-on">On</a>
 				<a href="#" id="rotate-mode-off" class="disabled">Off</a>
 			</div>
-			<div class="config-set clearfix floatleft">
+			<div class="config-set clearfix repeat">
 				<h2>Rain Mode:</h2>
 				<a href="#" id="rain-mode-on">On</a>
 				<a href="#" id="rain-mode-off" class="disabled">Off</a>
@@ -54,29 +54,36 @@
 				<a href="#" id="camera-view-top">Top</a>
 				<a href="#" id="camera-view-front" class="disabled">Front</a>
 				<a href="#" id="camera-view-birdeye" class="disabled">Bird's eye</a>
+				<a href="#" id="camera-view-bottom" class="disabled">Bottom</a>
 			</div>			
 		</div> 
 		<div id="controls" class="holder">
 			<h2>Controls</h2>
-			- <i>1, 2, 3</i> for changing camera view
+			- <i>1, 2, 3, 4</i> to change camera view
 			<br />
-			- <i>w, s, a, d, q, e</i> for changing rellas position
+			- <i>w, s, a, d, q, e</i> to change rellas position
 			<br />
-			- <i>up, down, left, right, z, x</i> for changing camera position
+			- <i>up, down, left, right, z, x</i> to change camera position
 			<br />
-			- <i> b / n</i> for enable/disable rotate mode
+			- <i>Space</i> to show/hide this panel
 			<br />
-			- <i> c / v</i> for enable/disable rain mode
+			- <i>t</i> to toggle rotate mode
+			<br />
+			- <i>r</i> to toggle rain mode
+			<br />
+			- <i>g</i> to mute/unmute sound
+			<br />
+			- <i> c/v</i> to adjust the space for rellas
 			<br />
 			- <i>p</i> for screenshot
 		</div>
 		<div id="intro" class="holder">
 			<h2>Notes</h2>
 			<p>
-				I have always imagined being able to take a photograph of the umbrellas on a rainy day from the sky.
+				Imagine taking a photograph of the umbrellas from the sky on a rainy day!
 			</p>
 			<p>
-				Source: <a href="https://github.com/xming13/RellaFun" target="_blank">https://github.com/xming13/RellaFun</a>
+				<a href="https://github.com/xming13/RellaFun" target="_blank">https://github.com/xming13/RellaFun</a>
 			</p>
 		</div>
 		<div id="credits" class="holder">
@@ -87,14 +94,15 @@
 			<br />
 			<a href="https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/ParticleEngine.js" target="_blank">ParticleEngine.js</a> by <a href="https://github.com/stemkoski" target="_blank">Lee Stemkoski </a>
 			<br />
-			<a href="http://lab.aerotwist.com/webgl/photoparticles" target="_blank">Photo Particles</a> by <a href="http://aerotwist.com" target="_blank">Aerotwist<a>
+			<a href="http://lab.aerotwist.com/webgl/photoparticles" target="_blank">Photo Particles</a> by <a href="http://aerotwist.com" target="_blank">Aerotwist</a>
+			<br />
+			All the pretty images I found online!
 		</div>
 	</div>
 	<div class="clear"></div>
 	<div id="addFile">
 		<img id="imgAddFile" src="images/icon-info.png" title="Create your own rella!" />
 	</div>
-
 	<script type="text/javascript">
 		var stats, 
 			scene, 
@@ -103,64 +111,104 @@
 			cameraControls,
 			windowResize,
 			clock = new THREE.Clock(),
-			keyboard = new THREEx.KeyboardState(),
+			soundRain,
+			soundSunny,
+			hemiLight,
+			dirLight,
+			ground,
 			group,
 			engine,
 			rellaBoxSize = 20,
 			rellaImage,
 			fileDrop,
 			isFileDropVisible = false,
+			isRainMode = true,
 			isRotateMode = true,
-			currentSquareNumber;
-
+			currentSquareNumber,
+			isSoundRainPlayed = false,
+		 	isSoundSunnyPlayed = false,
+		 	isAudioMute = false;
+		
+		cameraView = {
+			Top : true,
+			Front : false,
+			Birdeye : false,
+			Bottom: false
+		};
 		callbacks = {
 			rotateModeOn: function() {
 				isRotateMode = true;
 				$(this).removeClass('disabled');
-				$(this).siblings('a').addClass('disabled');
-				return false;
+				$(this).siblings('a').addClass('disabled');				
 			},
 			rotateModeOff: function() {
 				isRotateMode = false;
 				$(this).removeClass('disabled');
 				$(this).siblings('a').addClass('disabled');
-				return false;
 			},
 			rainModeOn: function() {
+				isRainMode = true;
+				dirLight.intensity = 0;
 				engine.destroy();
 				engine = new ParticleEngine();
 				engine.setValues( Examples.rain );
 				engine.initialize();
 				$(this).removeClass('disabled');
 				$(this).siblings('a').addClass('disabled');
-				return false;
+				soundRain.play();
+				if (isSoundSunnyPlayed)	
+					soundSunny.pause();
 			},
 			rainModeOff: function() {
+				isRainMode = false;
+				dirLight.intensity = 1;
 				engine.destroy();
 				$(this).removeClass('disabled');
 				$(this).siblings('a').addClass('disabled');
-				return false;
+				soundSunny.play();
+				if (isSoundRainPlayed) 
+					soundRain.pause();
 			},
 			cameraViewTop: function() {
+				cameraView.Top = true;
+				cameraView.Front = false;
+				cameraView.Birdeye = false;
+				cameraView.Bottom = false;
+				var sqrt = Math.sqrt(currentSquareNumber);
 				camera.position.set(0, 150, 0);
-				group.position.set(0, 0, -35);
-				$(this).removeClass('disabled');
-				$(this).siblings('a').addClass('disabled');
-				return false;
-			},
-			cameraViewFront: function() {
-				camera.position.set(0, 0, 150);
 				group.position.set(0, 0, 0);
 				$(this).removeClass('disabled');
 				$(this).siblings('a').addClass('disabled');
-				return false;
 			},
-			cameraViewBirdeye: function() {
-				camera.position.set(90, 70, 100);
-				group.position.set(0, 0, -30);
+			cameraViewFront: function() {
+				cameraView.Top = false;
+				cameraView.Front = true;
+				cameraView.Birdeye = false;
+				cameraView.Bottom = false;
+				camera.position.set(0, 0, 120);
+				group.position.set(0, 0, 0);
 				$(this).removeClass('disabled');
 				$(this).siblings('a').addClass('disabled');
-				return false;
+			},
+			cameraViewBirdeye: function() {
+				cameraView.Top = false;
+				cameraView.Front = false;
+				cameraView.Birdeye = true;
+				cameraView.Bottom = false;
+				camera.position.set(90, 70, 120);
+				group.position.set(0, 0, 0);
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+			},
+			cameraViewBottom: function() {
+				cameraView.Top = false;
+				cameraView.Front = false;
+				cameraView.Birdeye = false;
+				cameraView.Bottom = true;
+				camera.position.set(0, -200, 0);
+				group.position.set(0, 0, 0);
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
 			},
 			showHideFileDrop: function() {
 				if (isFileDropVisible) {
@@ -170,7 +218,45 @@
 					showFileDrop();
 				}
 				isFileDropVisible = !isFileDropVisible;
-				return false;
+			},
+			onKeyDown: function(event) {
+				switch(event.which) {
+					case $.ui.keyCode.UP 	:	camera.position.y += 1; break;
+					case $.ui.keyCode.DOWN 	: 	camera.position.y -= 1; break;
+					case $.ui.keyCode.LEFT 	: 	camera.position.x += 1; break;
+					case $.ui.keyCode.RIGHT : 	camera.position.x -= 1; break;
+					case $.ui.keyCode.SPACE :  	callbacks.showHideFileDrop(); break;
+					default 				: 	break;
+				}
+				switch(String.fromCharCode(event.which)) {
+					case 'W'    : 	group.position.z += 1; break;
+					case 'S'	: 	group.position.z -= 1; break;	
+					case 'A' 	: 	group.position.x += 1; break;
+					case 'D'	: 	group.position.x -= 1; break;
+					case 'Q'	: 	group.position.y += 1; break;
+					case 'E'	: 	group.position.y -= 1; break;
+					case 'Z'	: 	camera.position.z += 1; break;
+					case 'X'	: 	camera.position.z -= 1; break;
+					case 'T'	: 	isRotateMode ? $('#rotate-mode-off').click() : $('#rotate-mode-on').click()
+								  	break;
+					case 'R'	: 	isRainMode ? $('#rain-mode-off').click() : $('#rain-mode-on').click()
+								  	break;
+					case 'G'	: 	toggleAudio();
+									break;
+					case 'C'	: 	rellaBoxSize += 1; 
+									reloadRella(rellaImage.length); 
+									break;
+					case 'V'	: 	if (rellaBoxSize > 0) {
+										rellaBoxSize -= 1;
+										reloadRella(rellaImage.length);
+								  	}
+								  	break;
+					case '1'	: 	$('#camera-view-top').click(); break;
+					case '2' 	: 	$('#camera-view-front').click(); break;
+					case '3' 	: 	$('#camera-view-birdeye').click(); break;
+					case '4' 	: 	$('#camera-view-bottom').click(); break;
+					default 	: 	break;
+				}
 			},
 			windowResize: function() {
 				var width 		= isFileDropVisible ? window.innerWidth - 300 : window.innerWidth;
@@ -178,6 +264,34 @@
 				camera.aspect 	= width / height;
 				renderer.setSize(width, height);				
 				camera.updateProjectionMatrix();
+			},
+			dropFile: function(event) {
+				event.stopPropagation();
+				event.preventDefault();
+				
+				// query what was dropped
+				var files = event.dataTransfer.files;
+				
+				// if we have something
+				if(files.length) {
+					handleFile(files[0]);
+				}
+			},
+			fileUploaded: function(event)
+			{		
+				if(event.target.result.match(/^data:image/))
+				{
+				    rellaImage.push(event.target.result);
+				    reloadRella();
+				}
+				else
+				{
+					alert("Umm, images only? ... Yeah");
+				}
+			},
+			cancel: function(event) {
+				if(event.preventDefault)
+					event.preventDefault();			
 			}
 		};
 
@@ -186,33 +300,26 @@
 		// init the scene
 		function init(){
 
-			if( Detector.webgl ){
-				renderer = new THREE.WebGLRenderer({
-					antialias		: true,	// to get smoother output
-					preserveDrawingBuffer	: true	// to allow screenshot
-				});
-				renderer.setClearColor( 0xBBBBBB, 1 );
-			// uncomment if webgl is required
-			//}else{
-			//	Detector.addGetWebGLMessage();
-			//	return true;
-			}else{
-				renderer	= new THREE.CanvasRenderer();
-			}
-			// renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.getElementById('container').appendChild(renderer.domElement);
+			// SOUND
+			soundRain = new Howl({
+				urls: ['audio/rain.mp3'],
+				loop: true,
+				onplay: function() {
+					isSoundRainPlayed = true;
+				}
+			}); 	
+			soundSunny = new Howl({
+				urls: ['audio/sunny.mp3'],
+				loop: true,
+				onplay: function() {
+					isSoundSunnyPlayed = true;
+				}
+			}); 
 
-			// add Stats.js - https://github.com/mrdoob/stats.js
-			stats = new Stats();
-			stats.domElement.style.position	= 'absolute';
-			stats.domElement.style.bottom	= '0px';
-			document.body.appendChild( stats.domElement );
-
-			// create a scene
+			// SCENE
 			scene = new THREE.Scene();
 
-			// put a camera in the scene
+			// CAMERA
 			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000 );
 			camera.up = new THREE.Vector3(0,1,0);
 			camera.position.set(0, 150, 0);
@@ -220,9 +327,47 @@
 
 			scene.add(camera);
 
+			if( Detector.webgl ){
+				renderer = new THREE.WebGLRenderer({
+					antialias		: true,	// to get smoother output
+					preserveDrawingBuffer	: true	// to allow screenshot
+				});
+			// uncomment if webgl is required
+			//}else{
+			//	Detector.addGetWebGLMessage();
+			//	return true;		
+			}else{
+				renderer	= new THREE.CanvasRenderer();
+			}
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.getElementById('container').appendChild(renderer.domElement);
+
+			renderer.setClearColor( 0xBBBBBB, 1 );
+			renderer.shadowMapEnabled = true;
+			renderer.shadowMapSoft = true;	
+			renderer.shadowMapCullFace = THREE.CullFaceBack;
+			// renderer.shadowMapBias = 0.0039;
+			// renderer.shadowMapDarkness = 0.5;
+			// renderer.shadowMapWidth = 1024;
+			// renderer.shadowMapHeight = 1024;
+
+			// renderer.shadowCameraNear = 3;
+			// renderer.shadowCameraFar = camera.far;
+			// renderer.shadowCameraFov = 50;
+
+			// renderer.gammaInput = true;
+			// renderer.gammaOutput = true;
+			// renderer.physicallyBasedShading = true;
+
 			// create a camera contol
 			cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
-
+			
+			// add Stats.js - https://github.com/mrdoob/stats.js
+			stats = new Stats();
+			stats.domElement.style.position	= 'absolute';
+			stats.domElement.style.bottom	= '0px';
+			document.body.appendChild( stats.domElement );
+			
 			// allow 'p' to make screenshot
 			THREEx.Screenshot.bindKey(renderer);
 			// allow 'f' to go fullscreen where this feature is supported
@@ -232,46 +377,82 @@
 			}
 
 			// LIGHT
-			var light = new THREE.PointLight(0xffffff);
-			light.position.set(0,250,0);
+			hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+			hemiLight.color.setHSL( 0.6, 1, 0.6 );
+			hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+			hemiLight.position.set( 0, 500, 0 );
+			scene.add( hemiLight );
+
+			dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+			dirLight.color.setHSL( 0.1, 1, 0.95 );
+			dirLight.position.set( 0, 2, 0);
+			dirLight.position.multiplyScalar( 50 );
+			scene.add( dirLight );
+
+			dirLight.castShadow = true;
+
+			var d = 100;
+
+			dirLight.shadowCameraLeft = -d;
+			dirLight.shadowCameraRight = d;
+			dirLight.shadowCameraTop = d;
+			dirLight.shadowCameraBottom = -d;
+
+			dirLight.shadowCameraFar = 3500;
+			dirLight.shadowBias = -0.0001;
+			dirLight.shadowDarkness = 0.35;	
 			
-			// SKYBOX/FOG
-			var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
-			var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
-			var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
-		 	skyBox.flipSided = true; // render faces from inside of the cube, instead of from outside (default).
-			scene.add(skyBox);
-			scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+			// GROUND
+			var groundGeo = new THREE.PlaneGeometry( 10000, 10000 );
+			var groundMat = new THREE.MeshPhongMaterial( { ambient: 0xffffff, color: 0xffffff, specular: 0x050505 } );
+			groundMat.color.setHSL( 0.095, 1, 0.75 );
+
+			ground = new THREE.Mesh( groundGeo, groundMat );
+			ground.rotation.x = -Math.PI/2;
+			ground.position.y = -8;
+			scene.add( ground );
+
+			ground.receiveShadow = true;
+
+			// FOG
+			scene.fog = new THREE.Fog( 0xffffff, 1, 5000 );
+			scene.fog.color.setHSL( 0.6, 0, 1 );
 
 			// RELLA IMAGE
 			rellaImage = [ 
 				'MeshNormalMaterial',
 				'images/rainbow.png',
 				'images/spectrum.png',
+				'images/spectrum2.png',
+				'images/spectrum3.png',
 				'images/ponybrown.png', 
 				'images/rrh1.png', 
 				'images/rrh2.png', 
 				'images/watermelon.png', 
-				'images/clock.png',
 				'images/checkerboard.jpg',
-				'images/icon-info.png', 
-				'images/icon-close-16.png', 
 				'images/drop-image.png',
-				'images/disc.png',
-				'images/crate.png',    
-				'images/cloud.png',    
+				'images/bg.png',    
 				'images/lava.png',
-				'images/bg.png',
 				'images/moon.png', 
-				'images/grey-moon.png', 
-				'images/earth.jpg'
+				'images/earth.jpg',
+				'images/graphic1.jpg',
+				'images/graphic2.jpg',
+				'images/pattern1.jpg',
+				'images/pattern2.jpg',
+				'images/pattern3.jpg',
+				'images/pattern4.jpg',
+				'images/pattern5.jpg',
+				'images/pattern6.jpg',
+				'images/pattern7.jpg',
+				'images/pattern8.jpg',
+				'images/pattern9.jpg',
+				'images/pattern10.jpg'
 			];
 			var sqrtNum = Math.floor(Math.sqrt(rellaImage.length));
 			currentSquareNumber = sqrtNum * sqrtNum;
 
 			// RELLA
 			group = new THREE.Object3D();
-			group.position.set(0, 0, -35);
 			for (var i = 0; i < rellaImage.length; i++) {
 				addRella(i);
 			}
@@ -284,53 +465,65 @@
 
 			// ADD Listeners
 			addEventListeners();
+			callbacks.cameraViewTop();
+			callbacks.rainModeOn();
+			callbacks.rotateModeOn();
 		}
 
-		function isPerfectSquare(i) {
-			return Math.sqrt(i) % 1 == 0;
-		}
-		function reloadRella(numRella) {
-			scene.remove(group);
-			group = new THREE.Object3D();
-			for (var i = 0; i < numRella; i++ ) {
-				addRella(i);
-			}
-			scene.add(group);
-		}
-		function addRella(rellaImageIndex) {
-			var rellaNumber = rellaImageIndex + 1;
-			if (rellaNumber > currentSquareNumber && isPerfectSquare(rellaNumber)) {
-				currentSquareNumber = rellaNumber;
-				reloadRella(rellaNumber);
-			}
-			else {				
-				var numRows = Math.floor(Math.sqrt(rellaImage.length));
-				var startX = -1 * numRows / 2 * rellaBoxSize;
-				var startZ = 0;
-				var row = Math.floor(rellaImageIndex / numRows);
-				var column = rellaImageIndex % numRows;
-				var x = startX + row * rellaBoxSize;
-				var z = startZ + column * rellaBoxSize; 
-				var material;
+		function addEventListeners() {
+			var fileDrop = document.getElementById('fileDrop');
+			fileDrop.addEventListener('dragover', callbacks.cancel, false);
+			fileDrop.addEventListener('dragenter', callbacks.cancel, false);
+			fileDrop.addEventListener('dragexit', callbacks.cancel, false);
+			fileDrop.addEventListener('drop', callbacks.dropFile, false);
 
-				if (rellaImage[rellaImageIndex] == 'MeshNormalMaterial') {
-					material = new THREE.MeshNormalMaterial({ side : THREE.DoubleSide  });	
-				}
-				else {
-					var texture = new THREE.ImageUtils.loadTexture( rellaImage[rellaImageIndex] );
-					material = new THREE.MeshBasicMaterial({ map: texture, side : THREE.DoubleSide  });
-				}
-				var geometry = new THREE.SphereGeometry(10, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2.7);
-				var mesh = new THREE.Mesh( geometry, material );
-				mesh.position.set(x, 0, z);
-				if (group.children && group.children[0]) {
-					var rotation = group.children[0].rotation;
-					mesh.rotation.set(rotation.x, rotation.y, rotation.z);
-				}
-				group.add(mesh);
+			$('#rotate-mode-on').click(callbacks.rotateModeOn);
+			$('#rotate-mode-off').click(callbacks.rotateModeOff);
 
-				addRellaHandle(x, z);
+			$('#rain-mode-on').click(callbacks.rainModeOn);
+			$('#rain-mode-off').click(callbacks.rainModeOff);
+			
+			$('#camera-view-top').click(callbacks.cameraViewTop);
+			$('#camera-view-front').click(callbacks.cameraViewFront);
+			$('#camera-view-birdeye').click(callbacks.cameraViewBirdeye);
+			$('#camera-view-bottom').click(callbacks.cameraViewBottom);
+
+			$('#imgAddFile').click(callbacks.showHideFileDrop);
+
+			$(window).resize(callbacks.windowResize);
+			$(document).keydown(callbacks.onKeyDown);
+		}
+
+		function addRella(rellaImageIndex) {	
+			var numColumns = Math.floor(Math.sqrt(rellaImage.length));
+			var numRows = Math.ceil((rellaImage.length) / numColumns);
+			var startX = -((numRows - 1) / 2) * rellaBoxSize;
+			var startZ = (numColumns - 1) / 2 * rellaBoxSize;
+			var row = Math.floor(rellaImageIndex / numColumns);
+			var column = rellaImageIndex % numColumns;
+			var x = startX + row * rellaBoxSize;
+			var z = startZ - column * rellaBoxSize; 
+			var material;
+
+			if (rellaImage[rellaImageIndex] == 'MeshNormalMaterial') {
+				material = new THREE.MeshNormalMaterial({ side : THREE.DoubleSide  });	
 			}
+			else {
+				var texture = new THREE.ImageUtils.loadTexture( rellaImage[rellaImageIndex] );
+				material = new THREE.MeshPhongMaterial ({ map: texture, side : THREE.DoubleSide  });
+			}
+			var geometry = new THREE.SphereGeometry(10, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2.7);
+			var mesh = new THREE.Mesh( geometry, material );
+			mesh.position.set(x, 0, z);
+
+			if (group.children && group.children[0]) {
+				var rotation = group.children[0].rotation;
+				mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+			}
+			mesh.castShadow = true;
+			group.add(mesh);
+			
+			addRellaHandle(x, z);
 		}
 
 		function addRellaHandle(x, z) {
@@ -357,103 +550,51 @@
       		group.add(handleU);	
 		}
 
+		function reloadRella() {
+			scene.remove(group);
+			group = new THREE.Object3D();
+			for (var i = 0; i < rellaImage.length; i++ ) {
+				addRella(i);
+			}
+			scene.add(group);
 
-		function addEventListeners() {
-			var fileDrop = document.getElementById('fileDrop');
-			fileDrop.addEventListener('dragover', cancel, false);
-			fileDrop.addEventListener('dragenter', cancel, false);
-			fileDrop.addEventListener('dragexit', cancel, false);
-			fileDrop.addEventListener('drop', dropFile, false);
-
-			$('#rotate-mode-on').click(callbacks.rotateModeOn);
-			$('#rotate-mode-off').click(callbacks.rotateModeOff);
-
-			$('#rain-mode-on').click(callbacks.rainModeOn);
-			$('#rain-mode-off').click(callbacks.rainModeOff);
-			
-			$('#camera-view-top').click(callbacks.cameraViewTop);
-			$('#camera-view-front').click(callbacks.cameraViewFront);
-			$('#camera-view-birdeye').click(callbacks.cameraViewBirdeye);
-
-			$('#imgAddFile').click(callbacks.showHideFileDrop);
-
-			$(window).resize(callbacks.windowResize);
+			if (cameraView.Top) 	 	 callbacks.cameraViewTop();
+			else if (cameraView.Front) 	 callbacks.cameraViewFront();
+			else if (cameraView.Birdeye) callbacks.cameraViewBirdeye();
+			else if (cameraView.Bottom)  callbacks.cameraViewBottom();
+			console.log(cameraView.Bottom);
 		}
+
 		function showFileDrop() {
 			renderer.setSize( window.innerWidth - 300, window.innerHeight );
 			camera.aspect	= (window.innerWidth - 300) / window.innerHeight;
 			camera.updateProjectionMatrix();
 		}
+
 		function hideFileDrop() {
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			camera.aspect	= window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
 		}
-		function dropFile(event)
-		{
-			// stop the browser doing
-			// it's normal thing of going
-			// to the item
-			event.stopPropagation();
-			event.preventDefault();
-			
-			// query what was dropped
-			var files = event.dataTransfer.files;
-			
-			// if we have something
-			if(files.length) {
-				handleFile(files[0]);
-			}
-			
-			return false;
-		}
-	
-		/**
-		 * Handles the uploaded file
-		 */
-		function handleFile(file)
-		{
+
+		function handleFile(file) {
 			var fileReader 			= new FileReader();
-			fileReader.onloadend	= fileUploaded;
+			fileReader.onloadend	= callbacks.fileUploaded;
 			fileReader.readAsDataURL(file);
 		}
-		
-		/**
-		 * File upload handled
-		 */
-		function fileUploaded(event)
-		{		
-			// check it's an image
-			if(event.target.result.match(/^data:image/))
-			{
-			    rellaImage.push(event.target.result);
-			    addRella(rellaImage.length - 1);
+		function toggleAudio() {
+			if (isAudioMute) {
+				Howler.unmute();
 			}
-			else
-			{
-				// time to whinge
-				alert("Umm, images only? ... Yeah");
+			else {
+				Howler.mute();
 			}
-		}
-		
-		/**
-		 * Simple handler function for 
-		 * the events we don't care about
-		 */
-		function cancel(event)
-		{
-			if(event.preventDefault)
-				event.preventDefault();
-		
-			return false;
+			isAudioMute = !isAudioMute;
 		}
 
 		// animation loop
 		function animate() {
 
-			// loop on request animation loop
-			// - it has to be at the begining of the function
-			// - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
 			requestAnimationFrame( animate );
 
 			// do the render
@@ -468,69 +609,12 @@
 		}
 
 		function update() {
-			if (keyboard.pressed("w")) {
-				group.position.z += 1;
-			}
-			if (keyboard.pressed("a")) {
-				group.position.x += 1;
-			}
-			if (keyboard.pressed("s")) {
-				group.position.z -= 1;
-			}
-			if (keyboard.pressed("d")) {
-				group.position.x -= 1;
-			}
-			if (keyboard.pressed("q")) {
-				group.position.y += 1;
-			}
-			if (keyboard.pressed("e")) {
-				group.position.y -= 1;
-			}
-			if (keyboard.pressed("right")) {
-				camera.position.x += 1;
-			}
-			if (keyboard.pressed("left")) {
-				camera.position.x -= 1;
-			}
-			if (keyboard.pressed("up")) {
-				camera.position.y += 1;
-			}
-			if (keyboard.pressed("down")) {
-				camera.position.y -= 1;
-			}
-			if (keyboard.pressed("z")) {
-				camera.position.z += 1;
-			}
-			if (keyboard.pressed("x")) {
-				camera.position.z -= 1;
-			}
-			if (keyboard.pressed("1")) {
-				$('#camera-view-top').click();
-			}
-			if (keyboard.pressed("2")) {
-				$('#camera-view-front').click();
-			}
-			if (keyboard.pressed("3")) {
-				$('#camera-view-birdeye').click();
-			}
-			if (keyboard.pressed("c")) {
-				$('#rain-mode-on').click();
-			}
-			if (keyboard.pressed("v")) {
-				$('#rain-mode-off').click();
-			}
-			if (keyboard.pressed("b")) {
-				$('#rotate-mode-on').click();
-			}
-			if (keyboard.pressed("n")) {
-				$('#rotate-mode-off').click();
-			}
+			var dt = clock.getDelta();
+			if (engine) engine.update( dt * 0.5 );
+
 			if (isRotateMode) {
 				group.children.forEach(function(rella) { rella.rotation.y += 0.05; })
 			}
-
-			var dt = clock.getDelta();
-			if (engine) engine.update( dt * 0.5 );
 			// update stats
 			stats.update();
 		}
