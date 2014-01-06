@@ -4,9 +4,6 @@
 		<title>Rella Fun (three.js)</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-				
-
-		
 		<link href="css/reset.css" rel="stylesheet"/>
 		<link href="css/main.css" rel="stylesheet"/>
 		<link href="css/jquery-ui.css" rel="stylesheet"/>
@@ -362,10 +359,10 @@
 			cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
 			
 			// add Stats.js - https://github.com/mrdoob/stats.js
-			stats = new Stats();
-			stats.domElement.style.position	= 'absolute';
-			stats.domElement.style.bottom	= '0px';
-			document.body.appendChild( stats.domElement );
+			// stats = new Stats();
+			// stats.domElement.style.position	= 'absolute';
+			// stats.domElement.style.bottom	= '0px';
+			// document.body.appendChild( stats.domElement );
 			
 			// allow 'p' to make screenshot
 			THREEx.Screenshot.bindKey(renderer);
@@ -609,7 +606,7 @@
 				group.children.forEach(function(rella) { rella.rotation.y += 0.05; })
 			}
 			// update stats
-			stats.update();
+			//stats.update();
 		}
 	</script>
 </body>
