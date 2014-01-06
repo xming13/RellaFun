@@ -60,6 +60,7 @@ html {
 	font-family: Arial, Helvetica, sans-serif;
 	color: #CCC;
 	overflow: auto;
+	display: none;
 }
 h1 {
 	font-size: 17px;
