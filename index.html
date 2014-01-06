@@ -556,12 +556,14 @@
 		}
 
 		function showFileDrop() {
+			$('#panel').show();
 			renderer.setSize( window.innerWidth - 300, window.innerHeight );
 			camera.aspect	= (window.innerWidth - 300) / window.innerHeight;
 			camera.updateProjectionMatrix();
 		}
 
 		function hideFileDrop() {
+			$('#panel').hide();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			camera.aspect	= window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
