@@ -13,7 +13,7 @@
 	<!-- three.js container -->
     <div id="container"></div>
     <!-- panel -->
-    <div id="panel">
+    <div id="panel" style="display: none;">
 		<!-- file drop area-->
 		<div id="fileDrop">
 			<h1>Create your own Rella here!</h1>
@@ -23,14 +23,19 @@
 		</div>
 		<div id="config" class="holder">
 			<div class="config-set clearfix repeat">
+				<h2>Rain Mode:</h2>
+				<a href="#" id="rain-mode-on">On</a>
+				<a href="#" id="rain-mode-off" class="disabled">Off</a>
+			</div>
+			<div class="config-set clearfix repeat">
 				<h2>Rotate Mode:</h2>
 				<a href="#" id="rotate-mode-on">On</a>
 				<a href="#" id="rotate-mode-off" class="disabled">Off</a>
 			</div>
 			<div class="config-set clearfix repeat">
-				<h2>Rain Mode:</h2>
-				<a href="#" id="rain-mode-on">On</a>
-				<a href="#" id="rain-mode-off" class="disabled">Off</a>
+				<h2>Sound Mode:</h2>
+				<a href="#" id="sound-mode-on">On</a>
+				<a href="#" id="sound-mode-off" class="disabled">Off</a>
 			</div>
 			<div class="config-set clearfix clear">
 				<h2>Camera View:</h2>
@@ -50,9 +55,9 @@
 			<br />
 			- <i>Space</i> to show/hide this panel
 			<br />
-			- <i>t</i> to toggle rotate mode
-			<br />
 			- <i>r</i> to toggle rain mode
+			<br />
+			- <i>t</i> to toggle rotate mode
 			<br />
 			- <i>g</i> to mute/unmute sound
 			<br />
@@ -120,11 +125,11 @@
 			rellaImage,
 			fileDrop,
 			isFileDropVisible = false,
-			isRainMode = true,
-			isRotateMode = true,
+			isRainModeOn = true,
+			isRotateModeOn = true,
 			isSoundRainPlayed = false,
 		 	isSoundSunnyPlayed = false,
-		 	isAudioMute = false;
+		 	isSoundModeOn = true;
 		
 		cameraView = {
 			Top : true,
@@ -134,17 +139,17 @@
 		};
 		callbacks = {
 			rotateModeOn: function() {
-				isRotateMode = true;
+				isRotateModeOn = true;
 				$(this).removeClass('disabled');
 				$(this).siblings('a').addClass('disabled');				
 			},
 			rotateModeOff: function() {
-				isRotateMode = false;
+				isRotateModeOn = false;
 				$(this).removeClass('disabled');
 				$(this).siblings('a').addClass('disabled');
 			},
 			rainModeOn: function() {
-				isRainMode = true;
+				isRainModeOn = true;
 				dirLight.intensity = 0;
 				engine.destroy();
 				engine = new ParticleEngine();
@@ -157,7 +162,7 @@
 					soundSunny.pause();
 			},
 			rainModeOff: function() {
-				isRainMode = false;
+				isRainModeOn = false;
 				dirLight.intensity = 1;
 				engine.destroy();
 				$(this).removeClass('disabled');
@@ -165,6 +170,18 @@
 				soundSunny.play();
 				if (isSoundRainPlayed) 
 					soundRain.pause();
+			},
+			soundModeOn: function() {
+				isSoundModeOn = true;
+				Howler.unmute();
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
+			},
+			soundModeOff: function() {
+				isSoundModeOn = false;
+				Howler.mute();
+				$(this).removeClass('disabled');
+				$(this).siblings('a').addClass('disabled');
 			},
 			cameraViewTop: function() {
 				cameraView.Top = true;
@@ -233,11 +250,11 @@
 					case 'E'	: 	group.position.y -= 1; break;
 					case 'Z'	: 	camera.position.z += 1; break;
 					case 'X'	: 	camera.position.z -= 1; break;
-					case 'T'	: 	isRotateMode ? $('#rotate-mode-off').click() : $('#rotate-mode-on').click()
+					case 'T'	: 	isRotateModeOn ? $('#rotate-mode-off').click() : $('#rotate-mode-on').click();
 								  	break;
-					case 'R'	: 	isRainMode ? $('#rain-mode-off').click() : $('#rain-mode-on').click()
+					case 'R'	: 	isRainModeOn ? $('#rain-mode-off').click() : $('#rain-mode-on').click();
 								  	break;
-					case 'G'	: 	toggleAudio();
+					case 'G'	: 	isSoundModeOn ? $('#sound-mode-off').click() : $('#sound-mode-on').click();
 									break;
 					case 'C'	: 	rellaBoxSize += 1; 
 									reloadRella(rellaImage.length); 
@@ -477,6 +494,9 @@
 			$('#rain-mode-on').click(callbacks.rainModeOn);
 			$('#rain-mode-off').click(callbacks.rainModeOff);
 			
+			$('#sound-mode-on').click(callbacks.soundModeOn);
+			$('#sound-mode-off').click(callbacks.soundModeOff);
+
 			$('#camera-view-top').click(callbacks.cameraViewTop);
 			$('#camera-view-front').click(callbacks.cameraViewFront);
 			$('#camera-view-birdeye').click(callbacks.cameraViewBirdeye);
@@ -572,15 +592,6 @@
 			fileReader.onloadend	= callbacks.fileUploaded;
 			fileReader.readAsDataURL(file);
 		}
-		function toggleAudio() {
-			if (isAudioMute) {
-				Howler.unmute();
-			}
-			else {
-				Howler.mute();
-			}
-			isAudioMute = !isAudioMute;
-		}
 
 		// animation loop
 		function animate() {
@@ -602,7 +613,7 @@
 			var dt = clock.getDelta();
 			if (engine) engine.update( dt * 0.5 );
 
-			if (isRotateMode) {
+			if (isRotateModeOn) {
 				group.children.forEach(function(rella) { rella.rotation.y += 0.05; })
 			}
 			// update stats
