@@ -1,110 +1,113 @@
 <!doctype html>
 <html>
-	<head>
-		<title>Rella Fun (three.js)</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link href="css/reset.css" rel="stylesheet"/>
-		<link href="css/main.css" rel="stylesheet"/>
-	</head>
-<body>
-	<!-- three.js container -->
-    <div id="container"></div>
-    <!-- panel -->
-    <div id="panel" style="display: none;">
-		<!-- file drop area-->
-		<div id="fileDrop">
-			<h1>Create your own Rella here!</h1>
-		    <img src="images/drop-image.png" width="200px" />
-		</div>
-		<div id="config" class="holder">
-			<div class="config-set clearfix repeat">
-				<h2>Rain Mode:</h2>
-				<a href="#" id="rain-mode-on">On</a>
-				<a href="#" id="rain-mode-off" class="disabled">Off</a>
-			</div>
-			<div class="config-set clearfix repeat">
-				<h2>Rotate Mode:</h2>
-				<a href="#" id="rotate-mode-on">On</a>
-				<a href="#" id="rotate-mode-off" class="disabled">Off</a>
-			</div>
-			<div class="config-set clearfix repeat">
-				<h2>Sound Mode:</h2>
-				<a href="#" id="sound-mode-on">On</a>
-				<a href="#" id="sound-mode-off" class="disabled">Off</a>
-			</div>
-			<div class="config-set clearfix clear">
-				<h2>Camera View:</h2>
-				<a href="#" id="camera-view-top">Top</a>
-				<a href="#" id="camera-view-front" class="disabled">Front</a>
-				<a href="#" id="camera-view-birdeye" class="disabled">Bird's eye</a>
-				<a href="#" id="camera-view-bottom" class="disabled">Bottom</a>
-			</div>			
-		</div> 
-		<div id="controls" class="holder">
-			<h2>Controls</h2>
-			- <i>1, 2, 3, 4</i> to change camera view
-			<br />
-			- <i>w, s, a, d, q, e</i> to change rellas position
-			<br />
-			- <i>up, down, left, right, z, x</i> to change camera position
-			<br />
-			- <i>Space</i> to show/hide this panel
-			<br />
-			- <i>r</i> to toggle rain mode
-			<br />
-			- <i>t</i> to toggle rotate mode
-			<br />
-			- <i>g</i> to mute/unmute sound
-			<br />
-			- <i> c/v</i> to adjust the space for rellas
-			<br />
-			- <i>p</i> for screenshot
-		</div>
-		<div id="intro" class="holder">
-			<h2>Notes</h2>
-			<p>
-				Imagine taking a photograph of the umbrellas from the sky on a rainy day!
-			</p>
-			<p>
-				<a href="https://github.com/xming13/RellaFun" target="_blank">https://github.com/xming13/RellaFun</a>
-			</p>
-		</div>
-		<div id="credits" class="holder">
-			<h2>Credits</h2>
-			<b> Many thanks to </b>
-			<br />
-			<a href="https://github.com/mrdoob/three.js" target="_blank">three.js</a> by <a href="https://github.com/mrdoob" target="_blank">mrdoob</a>
-			<br />
-			<a href="https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/ParticleEngine.js" target="_blank">ParticleEngine.js</a> by <a href="https://github.com/stemkoski" target="_blank">Lee Stemkoski </a>
-			<br />
-			<a href="http://lab.aerotwist.com/webgl/photoparticles" target="_blank">Photo Particles</a> by <a href="http://aerotwist.com" target="_blank">Aerotwist</a>
-			<br />
-			All the pretty images I found online!
-		</div>
-	</div>
-	<div class="clear"></div>
-	<div id="addFile">
-		<img id="imgAddFile" src="images/icon-info.png" title="Create your own rella!" />
-	</div>
-	<script src="js/threejs/three.min.js"></script>
-	<script src="js/threejs/Detector.js"></script>
-	<!-- https://github.com/mrdoob/stats.js -->
-	<script src="js/threejs/Stats.js"></script>
-	<script src="js/threejs/OrbitControls.js"></script>
-	<script src="js/threex/THREEx.screenshot.js"></script>
-	<script src="js/threex/THREEx.FullScreen.js"></script>
-	<script src="js/ParticleEngine.js"></script>
-	<script src="js/ParticleEngineExamples.js"></script>
-	<script src="js/howler.js"></script>
 
-	<!-- jQuery code to display an information button and box when clicked. -->
-	<script src="js/jquery-1.9.1.js"></script>
-    <script src="js/main.js"></script>
-    <script>
-        $(document).ready(function() {
-           XMing.rella();
-        });
-    </script>
+<head>
+    <title>Rella Fun (three.js)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+
+<body>
+<!-- three.js container -->
+<div id="container"></div>
+<!-- panel -->
+<div id="panel" style="display: none;">
+    <!-- file drop area-->
+    <div id="fileDrop">
+        <h1>Create your own Rella here!</h1>
+        <img src="images/drop-image.png" width="200px"/>
+    </div>
+    <div id="config" class="holder">
+        <div class="config-set clearfix repeat">
+            <h2>Rain Mode:</h2>
+            <a href="#" id="rain-mode-on">On</a>
+            <a href="#" id="rain-mode-off" class="disabled">Off</a>
+        </div>
+        <div class="config-set clearfix repeat">
+            <h2>Rotate Mode:</h2>
+            <a href="#" id="rotate-mode-on">On</a>
+            <a href="#" id="rotate-mode-off" class="disabled">Off</a>
+        </div>
+        <div class="config-set clearfix repeat">
+            <h2>Sound Mode:</h2>
+            <a href="#" id="sound-mode-on">On</a>
+            <a href="#" id="sound-mode-off" class="disabled">Off</a>
+        </div>
+        <div class="config-set clearfix clear">
+            <h2>Camera View:</h2>
+            <a href="#" id="camera-view-top">Top</a>
+            <a href="#" id="camera-view-front" class="disabled">Front</a>
+            <a href="#" id="camera-view-birdeye" class="disabled">Bird's eye</a>
+            <a href="#" id="camera-view-bottom" class="disabled">Bottom</a>
+        </div>
+    </div>
+    <div id="controls" class="holder">
+        <h2>Controls</h2>
+        - <i>1, 2, 3, 4</i> to change camera view
+        <br/>
+        - <i>w, s, a, d, q, e</i> to change rellas position
+        <br/>
+        - <i>up, down, left, right, z, x</i> to change camera position
+        <br/>
+        - <i>Space</i> to show/hide this panel
+        <br/>
+        - <i>r</i> to toggle rain mode
+        <br/>
+        - <i>t</i> to toggle rotate mode
+        <br/>
+        - <i>g</i> to mute/unmute sound
+        <br/>
+        - <i>c/v</i> to adjust the space for rellas
+        <br/>
+        - <i>p</i> for screenshot
+    </div>
+    <div id="intro" class="holder">
+        <h2>Notes</h2>
+
+        <p>Imagine taking a photograph of the umbrellas from the sky on a rainy day!</p>
+        <p>
+            <a href="https://github.com/xming13/RellaFun" target="_blank">https://github.com/xming13/RellaFun</a>
+        </p>
+    </div>
+    <div id="credits" class="holder">
+        <h2>Credits</h2>
+        <b> Many thanks to </b>
+
+        <br/>
+
+        <a href="https://github.com/mrdoob/three.js" target="_blank">three.js</a>
+        by
+        <a href="https://github.com/mrdoob" target="_blank">mrdoob</a>
+
+        <br/>
+
+        <a href="https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/ParticleEngine.js" target="_blank">ParticleEngine.js</a>
+        by
+        <a href="https://github.com/stemkoski" target="_blank">Lee Stemkoski </a>
+
+        <br/>
+
+        <a href="http://lab.aerotwist.com/webgl/photoparticles" target="_blank">Photo Particles</a>
+        by
+        <a href="http://aerotwist.com" target="_blank">Aerotwist</a>
+
+        <br/>
+
+        All the pretty images I found online!
+    </div>
+</div>
+<div class="clear"></div>
+<div id="addFile">
+    <img id="imgAddFile" src="images/icon-info.png" title="Create your own rella!" />
+</div>
+
+<script src="js/app.js"></script>
+<script>
+    jQuery(document).ready(function () {
+        XMing.rella();
+    });
+</script>
 </body>
+
 </html>
