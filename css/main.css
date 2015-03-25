@@ -74,6 +74,7 @@ h2 {
 #fileDrop {
 	color: white;
 	padding: 10px 5px;
+    text-align: center;
 }
 #fileDrop .helper {
     display: inline-block;
