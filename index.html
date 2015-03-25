@@ -6,8 +6,6 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link href="css/reset.css" rel="stylesheet"/>
 		<link href="css/main.css" rel="stylesheet"/>
-		<link href="css/jquery-ui.css" rel="stylesheet"/>
-		<link href="css/info.css" rel="stylesheet"/>
 	</head>
 <body>
 	<!-- three.js container -->
@@ -104,8 +102,6 @@
 
 	<!-- jQuery code to display an information button and box when clicked. -->
 	<script src="js/jquery-1.9.1.js"></script>
-	<script src="js/jquery-ui.js"></script>
-	<script src="js/info.js"></script>
 	<script type="text/javascript">
 		var stats, 
 			scene, 
@@ -234,12 +230,17 @@
 			},
 			onKeyDown: function(event) {
 				switch(event.which) {
-					case $.ui.keyCode.UP 	:	camera.position.y += 1; break;
-					case $.ui.keyCode.DOWN 	: 	camera.position.y -= 1; break;
-					case $.ui.keyCode.LEFT 	: 	camera.position.x += 1; break;
-					case $.ui.keyCode.RIGHT : 	camera.position.x -= 1; break;
-					case $.ui.keyCode.SPACE :  	callbacks.showHideFileDrop(); break;
-					default 				: 	break;
+                    // UP
+					case 38: camera.position.y += 1; break;
+					// DOWN
+                    case 40: camera.position.y -= 1; break;
+					// LEFT
+                    case 37: camera.position.x += 1; break;
+					// RIGHT
+                    case 39: camera.position.x -= 1; break;
+					// SPACE
+                    case 32: callbacks.showHideFileDrop(); break;
+					default: break;
 				}
 				switch(String.fromCharCode(event.which)) {
 					case 'W'    : 	group.position.z += 1; break;
