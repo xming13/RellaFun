@@ -49,9 +49,10 @@ XMing.rella = function() {
             engine.initialize();
             $(this).removeClass('disabled');
             $(this).siblings('a').addClass('disabled');
+            if (isSoundSunnyPlayed) {
+                soundSunny.stop();
+            }
             soundRain.play();
-            if (isSoundSunnyPlayed)
-                soundSunny.pause();
         },
         rainModeOff: function() {
             isRainModeOn = false;
@@ -59,9 +60,10 @@ XMing.rella = function() {
             engine.destroy();
             $(this).removeClass('disabled');
             $(this).siblings('a').addClass('disabled');
+            if (isSoundRainPlayed) {
+                soundRain.stop();
+            }
             soundSunny.play();
-            if (isSoundRainPlayed)
-                soundRain.pause();
         },
         soundModeOn: function() {
             isSoundModeOn = true;
@@ -397,8 +399,6 @@ XMing.rella = function() {
             'images/lava.png',
             'images/moon.png',
             'images/earth.jpg',
-            'images/graphic1.jpg',
-            'images/graphic2.jpg',
             'images/pattern1.jpg',
             'images/pattern2.jpg',
             'images/pattern3.jpg',
