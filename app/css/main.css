@@ -88,12 +88,12 @@ h2 {
     padding: 10px 0;
 }
 
-.config-set {
+#config .config-set {
     display: block;
     padding: 5px 0;
 }
 
-.config-set a {
+#config .config-set a {
     display: block;
     background-color: #FFF;
     color: #2b2b2b;
@@ -108,7 +108,7 @@ h2 {
     opacity: 1;
 }
 
-.config-set a.disabled {
+#config .config-set a.disabled {
     opacity: 0.2;
 }
 
