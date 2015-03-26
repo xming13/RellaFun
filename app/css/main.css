@@ -100,7 +100,7 @@ h2 {
 	text-decoration: none;
 	float: left;
 	border-radius: 8px;
-	margin-right: 5px;
+	margin-right: 4px;
 	opacity: 1;
 }
 .config-set a.disabled {
@@ -121,17 +121,18 @@ h2 {
 .holder {
 	padding: 9px 0;
 	border-top: 1px solid white;
+    line-height: 13px;
 }
-#credits a, #intro a {
-	color: white;
+.holder a {
+	color: #FFF;
 	font-weight: bold;
 }
-#credits a:visited, #intro a:visited {
-	color: #5C5858;
+.holder a:visited {
+	color: #898585;
 	font-weight: bold;
 }
-#credits a:hover, #intro a:hover {
-	color: grey;
+.holder a:hover {
+	color: #5F5F5F;
 	font-weight: bold;
 }
 .repeat {
