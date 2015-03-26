@@ -1,144 +1,158 @@
 body {
-	overflow	: hidden;
-	padding		: 0;
-	margin		: 0;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
 
-	color		: #222;
-	background-color: #BBB;
-	font-family	: arial;
-	font-size	: 100%;
+    color: #222;
+    background-color: #BBB;
+    font-family: arial;
+    font-size: 100%;
 
-	position: relative;
-	height: 100%;
+    position: relative;
+    height: 100%;
 }
+
 html {
-	position: relative;
-	height: 100%;
-}
-#info .top {
-	position	: absolute;
-	top			: 0px;
-	width		: 100%;
-	padding		: 5px;
-	text-align	: center;
-}
-#info a {
-	color		: #66F;
-	text-decoration	: none;
-}
-#info a:hover {
-	text-decoration	: underline;
-}
-#info .bottom {
-	position	: absolute;
-	bottom		: 0px;
-	right		: 5px;
-	padding		: 5px;
+    position: relative;
+    height: 100%;
 }
 
 #container {
-	float: left;
-	position: relative;
-	height: 100%;
+    float: left;
+    position: relative;
+    height: 100%;
 }
 
-#addFile {
-	position: absolute;
-	top: 5px;
-	left: 5px;
+#info {
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    top: 5px;
+    left: 5px;
+    background: url('../images/umbrella-icons.png') no-repeat -50px 0;
+    cursor: pointer;
 }
-#imgAddFile {
-	cursor: pointer;
+
+#info:hover {
+    top: 0px;
+    left: 0px;
+    border: 5px solid #000;
 }
+
+#info.selected {
+    background-position: 0;
+}
+
+#info.selected:hover {
+    top: 0px;
+    left: 0px;
+    border: 5px solid #FFF;
+}
+
 #panel {
-	float: left;
-	width: 270px;
-	height: 100%;
-	padding: 0 15px;
-	background: #2b2b2b;
-	font-size: 11px;
-	font-family: Arial, Helvetica, sans-serif;
-	color: #CCC;
-	overflow: auto;
-	display: none;
+    float: left;
+    width: 270px;
+    height: 100%;
+    padding: 0 15px;
+    background: #2b2b2b;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #CCC;
+    overflow: auto;
 }
+
 h1 {
-	font-size: 17px;
-	text-align: center;
-}
-h2 {
-	color: #FFF;
-	font-weight: bold;
-	margin-bottom: 7px;
-}
-#fileDrop {
-	color: white;
-	padding: 10px 5px;
+    font-size: 17px;
     text-align: center;
 }
+
+h2 {
+    color: #FFF;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+#fileDrop {
+    color: white;
+    padding: 10px 5px;
+    text-align: center;
+}
+
 #fileDrop .helper {
     display: inline-block;
     height: 100%;
     vertical-align: middle;
 }
+
 #fileDrop img {
-	padding: 10px 0;
+    padding: 10px 0;
 }
 
 .config-set {
-	display: block;
-	padding: 5px 0;
+    display: block;
+    padding: 5px 0;
 }
+
 .config-set a {
-	display: block;
-	background-color: #FFF;
-	color: #2b2b2b;
-	text-transform: uppercase;
-	padding: 4px 10px 4px 10px;
-	font-weight: bold;
-	font-size: 10px;
-	text-decoration: none;
-	float: left;
-	border-radius: 8px;
-	margin-right: 4px;
-	opacity: 1;
+    display: block;
+    background-color: #FFF;
+    color: #2b2b2b;
+    text-transform: uppercase;
+    padding: 4px 10px 4px 10px;
+    font-weight: bold;
+    font-size: 10px;
+    text-decoration: none;
+    float: left;
+    border-radius: 8px;
+    margin-right: 4px;
+    opacity: 1;
 }
+
 .config-set a.disabled {
-	opacity: 0.2;
+    opacity: 0.2;
 }
-.clearfix:before, .clearfix:after { 
-	content: "\0020"; 
-	display: block; 
-	height: 0; 
-	overflow: hidden; 
+
+.clearfix:before, .clearfix:after {
+    content: "\0020";
+    display: block;
+    height: 0;
+    overflow: hidden;
 }
-.clearfix:after { 
-	clear: both; 
+
+.clearfix:after {
+    clear: both;
 }
-.clearfix { 
-	zoom: 1; 
+
+.clearfix {
+    zoom: 1;
 }
+
 .holder {
-	padding: 9px 0;
-	border-top: 1px solid white;
+    padding: 9px 0;
+    border-top: 1px solid white;
     line-height: 13px;
 }
+
 .holder a {
-	color: #FFF;
-	font-weight: bold;
+    color: #FFF;
+    font-weight: bold;
 }
+
 .holder a:visited {
-	color: #898585;
-	font-weight: bold;
+    color: #898585;
+    font-weight: bold;
 }
+
 .holder a:hover {
-	color: #5F5F5F;
-	font-weight: bold;
+    color: #5F5F5F;
+    font-weight: bold;
 }
+
 .repeat {
-	float: left;
-	margin-right: 5px;
+    float: left;
+    margin-right: 5px;
 }
+
 .clear {
-	clear: both;
+    clear: both;
 }

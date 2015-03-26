@@ -451,7 +451,7 @@ XMing.rella = function() {
         $('#camera-view-birdeye').click(callbacks.cameraViewBirdeye);
         $('#camera-view-bottom').click(callbacks.cameraViewBottom);
 
-        $('#imgAddFile').click(callbacks.showHideFileDrop);
+        $('#info').click(callbacks.showHideFileDrop);
 
         $(window).resize(callbacks.windowResize);
         $(document).keydown(callbacks.onKeyDown);
@@ -534,6 +534,7 @@ XMing.rella = function() {
 
     function showFileDrop() {
         $('#panel').show();
+        $('#info').addClass('selected');
         renderer.setSize(window.innerWidth - 300, window.innerHeight);
         camera.aspect = (window.innerWidth - 300) / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -541,6 +542,7 @@ XMing.rella = function() {
 
     function hideFileDrop() {
         $('#panel').hide();
+        $('#info').removeClass('selected');
         renderer.setSize(window.innerWidth, window.innerHeight);
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
