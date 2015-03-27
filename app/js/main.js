@@ -428,6 +428,7 @@ XMing.rella = function() {
         callbacks.cameraViewTop();
         callbacks.rainModeOn();
         callbacks.rotateModeOn();
+        callbacks.showHideFileDrop();
     }
 
     function addEventListeners() {
